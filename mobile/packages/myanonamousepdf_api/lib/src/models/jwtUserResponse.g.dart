@@ -15,20 +15,14 @@ JwtUserResponse _$JwtUserResponseFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = JwtUserResponse(
           token: $checkedConvert('token', (v) => v as String),
-          refreshToken: $checkedConvert('refresh_token', (v) => v as String),
+          refreshToken: $checkedConvert('refreshToken', (v) => v as String),
           id: $checkedConvert('id', (v) => v as String),
-          userName: $checkedConvert('user_name', (v) => v as String),
-          fullName: $checkedConvert('full_name', (v) => v as String),
+          userName: $checkedConvert('userName', (v) => v as String),
+          fullName: $checkedConvert('fullName', (v) => v as String),
           avatar: $checkedConvert('avatar', (v) => v as String),
           createdAt:
-              $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
+              $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
         );
         return val;
-      },
-      fieldKeyMap: const {
-        'refreshToken': 'refresh_token',
-        'userName': 'user_name',
-        'fullName': 'full_name',
-        'createdAt': 'created_at'
       },
     );

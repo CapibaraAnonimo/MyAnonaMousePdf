@@ -15,17 +15,12 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = UserResponse(
           id: $checkedConvert('id', (v) => v as String),
-          userName: $checkedConvert('user_name', (v) => v as String),
-          fullName: $checkedConvert('full_name', (v) => v as String),
+          userName: $checkedConvert('userName', (v) => v as String),
+          fullName: $checkedConvert('fullName', (v) => v as String),
           avatar: $checkedConvert('avatar', (v) => v as String),
           createdAt:
-              $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
+              $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
         );
         return val;
-      },
-      fieldKeyMap: const {
-        'userName': 'user_name',
-        'fullName': 'full_name',
-        'createdAt': 'created_at'
       },
     );
