@@ -1,50 +1,27 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
-import 'package:newmyanonamousepdf/bloc/auth/auth.dart';
+import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart';
 import 'package:newmyanonamousepdf/bloc/book_list/book_list.dart';
 import 'package:newmyanonamousepdf/pages/pages.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
+import 'package:newmyanonamousepdf/service/book_service.dart';
+import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
+import 'package:newmyanonamousepdf/service/category_service.dart';
+import 'package:path/path.dart';
+import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 
 class BookListPage extends StatelessWidget {
   BuildContext context;
   final JwtUserResponse? user;
 
   BookListPage({super.key, this.user, required this.context});
-
-  Widget addBook() {
-    if (user != null) {
-      return IconButton(
-        icon: const Icon(Icons.add_circle_outline_outlined),
-        onPressed: () {},
-      );
-    } else {
-      return SizedBox.shrink();
-    }
-  }
-
-  Widget log(AuthenticationBloc auth) {
-    if (user != null) {
-      return IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () {
-            auth.add(UserLoggedOut());
-          });
-    } else {
-      return IconButton(
-          icon: const Icon(Icons.login),
-          onPressed: () {
-            logIn();
-          });
-    }
-  }
-
-  void logIn() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => LoginPage()));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,40 +30,27 @@ class BookListPage extends StatelessWidget {
 
     return BlocProvider<BookListBloc>(
       create: (context) => BookListBloc(authService),
-      child: Scaffold(
-          backgroundColor: Color.fromARGB(255, 20, 20, 20),
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            flexibleSpace: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-            title: const Text('Books'),
-            actions: [
-              addBook(),
-              log(_authBloc),
-            ],
-          ),
-          body: BodyWidget()),
+      child: ScreenWidget(
+        user: user,
+      ),
     );
   }
 }
 
-class BodyWidget extends StatefulWidget {
-  const BodyWidget({super.key});
+class ScreenWidget extends StatefulWidget {
+  const ScreenWidget({super.key, required this.user});
+  final JwtUserResponse? user;
 
   @override
-  State<BodyWidget> createState() => _BodyState();
+  State<ScreenWidget> createState() => _BodyState(user: user);
 }
 
-class _BodyState extends State<BodyWidget> {
+class _BodyState extends State<ScreenWidget> {
+  _BodyState({required this.user});
   final _scrollController = ScrollController();
   int currentPage = 0;
   int maxPage = 0;
+  final JwtUserResponse? user;
 
   @override
   void initState() {
@@ -96,48 +60,308 @@ class _BodyState extends State<BodyWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = JwtAuthenticationService();
     List<Book> books = [];
+    final authService = JwtAuthenticationService();
+    final categoryService = JwtCategoryService();
+    final bookService = JwtBookService();
+    final _authBloc = BlocProvider.of<AuthenticationBloc>(context);
 
-    return BlocProvider<BookListBloc>(
-      create: (context) => BookListBloc(authService),
-      child: BlocBuilder<BookListBloc, BookListState>(
-        builder: (context, state) {
-          final _bookBloc = BlocProvider.of<BookListBloc>(context);
+    uploadFile() async {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'epub'],
+      );
+      List<BookCategory> categories = await categoryService.getCategories();
 
-          if (state is BookListSuccess) {
-            print('Se entra en success');
-            currentPage = state.currentPage;
-            maxPage = state.maxPages;
-            books.addAll(state.books);
-            return ListView.builder(
-              /*children: [
+      if (result != null) {
+        File file = File(result.files.single.path!);
+        final _titleController = TextEditingController();
+        late String _categoryController;
+        final _authorController = TextEditingController();
+        final _descriptionController = TextEditingController();
+
+        // ignore: use_build_context_synchronously
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: const Color.fromARGB(255, 30, 30, 30),
+                title: const Text(
+                  "Success",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 165, 165, 165),
+                  ),
+                ),
+                content: Text(
+                  basename(file.path),
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 165, 165, 165),
+                  ),
+                ),
+                actions: [
+                  TextFormField(
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Title',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    controller: _titleController,
+                    keyboardType: TextInputType.text,
+                    autocorrect: false,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Title is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  DropdownButtonFormField(
+                    //value: categories[0],
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Category',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    dropdownColor: const Color.fromARGB(255, 32, 32, 32),
+                    items: categories.map((category) {
+                      return DropdownMenuItem(
+                        value: category.id,
+                        child: Text(category.name),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      _categoryController = newValue!;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  TextFormField(
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Author',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    controller: _authorController,
+                    keyboardType: TextInputType.name,
+                    autocorrect: false,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Title is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  TextFormField(
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Description',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    controller: _descriptionController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: 4,
+                    autocorrect: false,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Title is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancel Upload')),
+                      ElevatedButton(
+                        onPressed: () {
+                          bookService.upload(
+                            BookUpload(
+                              categoryId: _categoryController,
+                              title: _titleController.text,
+                              author: _authorController.text,
+                              description: _descriptionController.text,
+                            ),
+                            file,
+                          );
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Upload'),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            });
+      } else {
+        // User canceled the picker
+      }
+    }
+
+    Widget addBook() {
+      if (user != null) {
+        return IconButton(
+          icon: const Icon(Icons.add_circle_outline_outlined),
+          onPressed: () {
+            uploadFile();
+          },
+        );
+      } else {
+        return SizedBox.shrink();
+      }
+    }
+
+    void logIn() {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginPage()));
+    }
+
+    Widget log(AuthenticationBloc auth) {
+      if (user != null) {
+        return IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              auth.add(UserLoggedOut());
+            });
+      } else {
+        return IconButton(
+            icon: const Icon(Icons.login),
+            onPressed: () {
+              logIn();
+            });
+      }
+    }
+
+    return Scaffold(
+        backgroundColor: Color.fromARGB(255, 20, 20, 20),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          flexibleSpace: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          title: const Text('Books'),
+          actions: [
+            addBook(),
+            log(_authBloc),
+          ],
+        ),
+        body: BlocProvider<BookListBloc>(
+          create: (context) => BookListBloc(authService),
+          child: BlocBuilder<BookListBloc, BookListState>(
+            builder: (context, state) {
+              final _bookBloc = BlocProvider.of<BookListBloc>(context);
+
+              if (state is BookListSuccess) {
+                print('Se entra en success');
+                currentPage = state.currentPage;
+                maxPage = state.maxPages;
+                books.addAll(state.books);
+                return ListView.builder(
+                  /*children: [
                 ...booksWidget,
               ],*/
-              controller: _scrollController,
-              itemCount:
-                  books.length + 1, // agregue 1 para cargar más elementos
-              itemBuilder: (BuildContext context, int index) {
-                if (index < books.length) {
-                  return Cards(book: books[index]);
-                } else {
-                  // cargue más elementos
-                  if (currentPage < maxPage - 1) {
-                    _bookBloc.add(Loading(page: currentPage + 1));
-                    return CircularProgressIndicator();
-                  }
-                }
-              },
-            );
-          } else if (state is BookListInitial) {
-            _bookBloc.add(Loading(page: 0));
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    );
+                  controller: _scrollController,
+                  itemCount:
+                      books.length + 1, // agregue 1 para cargar más elementos
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index < books.length) {
+                      return Cards(book: books[index]);
+                    } else {
+                      // cargue más elementos
+                      if (currentPage < maxPage - 1) {
+                        _bookBloc.add(Loading(page: currentPage + 1));
+                        return CircularProgressIndicator();
+                      }
+                    }
+                  },
+                );
+              } else if (state is BookListInitial) {
+                _bookBloc.add(Loading(page: 0));
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          ),
+        ));
   }
 
   @override

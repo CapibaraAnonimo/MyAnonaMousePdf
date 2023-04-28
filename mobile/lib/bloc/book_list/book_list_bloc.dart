@@ -1,6 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/service/book_service.dart';
+import 'package:myanonamousepdf_repository/src/category_repository.dart';
+import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
+import 'package:newmyanonamousepdf/service/category_service.dart';
 import 'book_list_event.dart';
 import 'book_list_state.dart';
 
@@ -21,6 +24,7 @@ class BookListBloc extends Bloc<BookListEvent, BookListState> {
   ) async {
     print('Se llega al bloc de los librossssssssssssssssssssss');
     final bookService = JwtBookService();
+    final categoryService = JwtCategoryService();
 
     emit(BookListLoading());
     try {
@@ -28,13 +32,15 @@ class BookListBloc extends Bloc<BookListEvent, BookListState> {
       final books = await bookService.getAllBooks(event.page);
       final currentPage = await _authenticationService.getCurrentPage();
       final maxPages = await _authenticationService.getMaxPages();
+      final List<BookCategory> categories = await categoryService.getCategories();
 
       print('Se ha hecho la llamada y se tengo las cosas de vuelta');
       print(books[0].title);
+      print(categories[0].name);
 
       if (books.length >= 0) {
         emit(BookListSuccess(
-            books: books, currentPage: currentPage!, maxPages: maxPages!));
+            books: books, currentPage: currentPage!, maxPages: maxPages!, categories: categories));
       }
     } on Exception catch (e) {
       emit(
