@@ -20,3 +20,9 @@ BookCategory _$BookCategoryFromJson(Map<String, dynamic> json) =>
         return val;
       },
     );
+
+Map<String, dynamic> _$BookCategoryToJson(BookCategory instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+    };

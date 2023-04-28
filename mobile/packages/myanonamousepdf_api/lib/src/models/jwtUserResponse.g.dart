@@ -26,3 +26,14 @@ JwtUserResponse _$JwtUserResponseFromJson(Map<String, dynamic> json) =>
         return val;
       },
     );
+
+Map<String, dynamic> _$JwtUserResponseToJson(JwtUserResponse instance) =>
+    <String, dynamic>{
+      'token': instance.token,
+      'refreshToken': instance.refreshToken,
+      'id': instance.id,
+      'userName': instance.userName,
+      'fullName': instance.fullName,
+      'avatar': instance.avatar,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };

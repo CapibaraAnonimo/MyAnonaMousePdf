@@ -1,12 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
+import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 
 abstract class BookService {
   Future<List<Book>> getAllBooks(int page);
   Future<Book> getBookById(String id);
   void download(String name);
+  void upload(BookUpload book, File file);
 }
 
 class JwtBookService extends BookService {
@@ -50,5 +53,12 @@ class JwtBookService extends BookService {
       user.token,
       user.refreshToken,
     );
+  }
+
+  @override
+  void upload(BookUpload book, File file) async {
+    JwtUserResponse user =
+        JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+    _bookRepository.upload(book, file, user.token, user.refreshToken);
   }
 }

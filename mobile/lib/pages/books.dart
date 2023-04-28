@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,11 @@ import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart';
 import 'package:newmyanonamousepdf/bloc/book_list/book_list.dart';
 import 'package:newmyanonamousepdf/pages/pages.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
+import 'package:newmyanonamousepdf/service/book_service.dart';
 import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
+import 'package:newmyanonamousepdf/service/category_service.dart';
+import 'package:path/path.dart';
+import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 
 class BookListPage extends StatelessWidget {
   BuildContext context;
@@ -57,6 +62,8 @@ class _BodyState extends State<ScreenWidget> {
   Widget build(BuildContext context) {
     List<Book> books = [];
     final authService = JwtAuthenticationService();
+    final categoryService = JwtCategoryService();
+    final bookService = JwtBookService();
     final _authBloc = BlocProvider.of<AuthenticationBloc>(context);
 
     uploadFile() async {
@@ -64,11 +71,14 @@ class _BodyState extends State<ScreenWidget> {
         type: FileType.custom,
         allowedExtensions: ['pdf', 'epub'],
       );
-      List<BookCategory> categories = [];
+      List<BookCategory> categories = await categoryService.getCategories();
 
       if (result != null) {
         File file = File(result.files.single.path!);
         final _titleController = TextEditingController();
+        late String _categoryController;
+        final _authorController = TextEditingController();
+        final _descriptionController = TextEditingController();
 
         // ignore: use_build_context_synchronously
         showDialog(
@@ -82,9 +92,9 @@ class _BodyState extends State<ScreenWidget> {
                     color: Color.fromARGB(255, 165, 165, 165),
                   ),
                 ),
-                content: const Text(
-                  "Saved successfully",
-                  style: TextStyle(
+                content: Text(
+                  basename(file.path),
+                  style: const TextStyle(
                     color: Color.fromARGB(255, 165, 165, 165),
                   ),
                 ),
@@ -112,7 +122,7 @@ class _BodyState extends State<ScreenWidget> {
                       isDense: true,
                     ),
                     controller: _titleController,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                     autocorrect: false,
                     validator: (value) {
                       if (value == null) {
@@ -121,24 +131,138 @@ class _BodyState extends State<ScreenWidget> {
                       return null;
                     },
                   ),
+                  const SizedBox(
+                    height: 16,
+                  ),
                   DropdownButtonFormField(
+                    //value: categories[0],
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Category',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    dropdownColor: const Color.fromARGB(255, 32, 32, 32),
                     items: categories.map((category) {
                       return DropdownMenuItem(
                         value: category.id,
                         child: Text(category.name),
                       );
                     }).toList(),
-                    onChanged: (String? newValue) {},
+                    onChanged: (newValue) {
+                      _categoryController = newValue!;
+                    },
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Return')),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Send'),
-                  )
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  TextFormField(
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Author',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    controller: _authorController,
+                    keyboardType: TextInputType.name,
+                    autocorrect: false,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Title is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  TextFormField(
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 165, 165, 165),
+                    ),
+                    decoration: const InputDecoration(
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      fillColor: Color.fromARGB(255, 32, 32, 32),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                      ),
+                      labelText: 'Description',
+                      filled: true,
+                      isDense: true,
+                    ),
+                    controller: _descriptionController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: 4,
+                    autocorrect: false,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Title is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancel Upload')),
+                      ElevatedButton(
+                        onPressed: () {
+                          bookService.upload(
+                            BookUpload(
+                              categoryId: _categoryController,
+                              title: _titleController.text,
+                              author: _authorController.text,
+                              description: _descriptionController.text,
+                            ),
+                            file,
+                          );
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Upload'),
+                      ),
+                    ],
+                  ),
                 ],
               );
             });

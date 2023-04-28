@@ -55,9 +55,10 @@ public class BookController {
                 .body(resource);
     }
 
-    @PostMapping("/upload")
+    @PutMapping(path = "/upload", consumes = {"multipart/form-data", "application/json", "application/pdf", "application/epub+zip", "application/octet-stream"})
     @ResponseStatus(HttpStatus.CREATED)
     public BookCreatedResponse postBook(@RequestPart("file") MultipartFile file, @RequestPart("book") @Valid CreateBook book, @AuthenticationPrincipal User loggedUser) {
+        System.out.println(book.getCategory());
         return BookCreatedResponse.of(bookService.save(book, file, loggedUser));
     }
 

@@ -24,3 +24,12 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) =>
         return val;
       },
     );
+
+Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'userName': instance.userName,
+      'fullName': instance.fullName,
+      'avatar': instance.avatar,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };
