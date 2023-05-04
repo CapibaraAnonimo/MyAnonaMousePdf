@@ -20,8 +20,7 @@ JwtUserResponse _$JwtUserResponseFromJson(Map<String, dynamic> json) =>
           userName: $checkedConvert('userName', (v) => v as String),
           fullName: $checkedConvert('fullName', (v) => v as String),
           avatar: $checkedConvert('avatar', (v) => v as String),
-          createdAt:
-              $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
+          createdAt: $checkedConvert('createdAt', (v) => v as String),
         );
         return val;
       },
@@ -35,5 +34,5 @@ Map<String, dynamic> _$JwtUserResponseToJson(JwtUserResponse instance) =>
       'userName': instance.userName,
       'fullName': instance.fullName,
       'avatar': instance.avatar,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'createdAt': instance.createdAt,
     };

@@ -1,15 +1,18 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:myanonamousepdf_api/myanonamousepdf_api.dart' as api;
+import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart';
 import 'package:newmyanonamousepdf/bloc/book_list/book_list.dart';
 import 'package:newmyanonamousepdf/pages/pages.dart';
+import 'package:newmyanonamousepdf/pages/user_info.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/service/book_service.dart';
 import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
@@ -19,7 +22,7 @@ import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 
 class BookListPage extends StatelessWidget {
   BuildContext context;
-  final JwtUserResponse? user;
+  final api.JwtUserResponse? user;
 
   BookListPage({super.key, this.user, required this.context});
 
@@ -39,7 +42,7 @@ class BookListPage extends StatelessWidget {
 
 class ScreenWidget extends StatefulWidget {
   const ScreenWidget({super.key, required this.user});
-  final JwtUserResponse? user;
+  final api.JwtUserResponse? user;
 
   @override
   State<ScreenWidget> createState() => _BodyState(user: user);
@@ -50,7 +53,7 @@ class _BodyState extends State<ScreenWidget> {
   final _scrollController = ScrollController();
   int currentPage = 0;
   int maxPage = 0;
-  final JwtUserResponse? user;
+  final api.JwtUserResponse? user;
 
   @override
   void initState() {
@@ -306,7 +309,7 @@ class _BodyState extends State<ScreenWidget> {
     }
 
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 20, 20, 20),
+        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           flexibleSpace: ClipRect(
@@ -317,7 +320,46 @@ class _BodyState extends State<ScreenWidget> {
               ),
             ),
           ),
-          title: const Text('Books'),
+          title: Row(children: [
+            user != null
+                ? /*IconButton(
+                    onPressed: () {},
+                    icon: Image.network(
+                        'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg'),
+                  )*/
+                SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const UserInfo()));
+                      },
+                      child: const CircleAvatar(
+                        radius: 48,
+                        backgroundImage: NetworkImage(
+                            'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg'),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            CachedNetworkImage(
+                height: 50,
+                width: 50,
+                imageUrl:
+                    "http://192.168.0.159:8080/book/download/${user.avatar}",
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                httpHeaders: {
+                  "Authorization": "Basic $user.token",
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+                }),
+            const SizedBox(width: 10),
+            const Text('Books')
+          ]),
           actions: [
             addBook(),
             log(_authBloc),

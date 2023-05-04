@@ -47,7 +47,7 @@ public class BookController {
 
     @GetMapping("/download/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        bookService.addDownload(filename);
+        //bookService.addDownload(filename);
         MediaTypeUrlResource resource = (MediaTypeUrlResource) storageService.loadAsResource(filename);
 
         return ResponseEntity.status(HttpStatus.OK)
