@@ -11,11 +11,11 @@ class AuthRepository {
 
   final MyanonamousepdfApiClient _myanonamousepdfApiClient;
 
-  Future<repo.JwtUserResponse> login(dynamic auth) async {
+  Future<JwtUserResponse> login(dynamic auth) async {
     final response = await _myanonamousepdfApiClient.post('auth/login', auth);
 
     print(jsonDecode(response));
-    final loggedUser = repo.JwtUserResponse.fromJson(jsonDecode(response));
+    final loggedUser = JwtUserResponse.fromJson(jsonDecode(response));
     return loggedUser;
   }
 

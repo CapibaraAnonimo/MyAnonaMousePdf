@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:get_storage/get_storage.dart';
+import 'package:myanonamousepdf_api/myanonamousepdf_api.dart' as api;
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 
 abstract class AuthenticationService {
-  Future<JwtUserResponse?> getCurrentUser();
-  Future<JwtUserResponse> signIn(dynamic body);
+  Future<api.JwtUserResponse?> getCurrentUser();
+  Future<api.JwtUserResponse> signIn(dynamic body);
   Future<RegisterResponse?> register(dynamic body);
   Future<void> signOut();
   Future<int?> getCurrentPage();
@@ -24,10 +25,10 @@ class JwtAuthenticationService extends AuthenticationService {
   }
 
   @override
-  Future<JwtUserResponse?> getCurrentUser() async {
+  Future<api.JwtUserResponse?> getCurrentUser() async {
     String? loggedUser = box.read("CurrentUser");
     if (loggedUser != null) {
-      var user = JwtUserResponse.fromJson(jsonDecode(loggedUser));
+      var user = api.JwtUserResponse.fromJson(jsonDecode(loggedUser));
       return user;
     }
     return null;
@@ -52,8 +53,8 @@ class JwtAuthenticationService extends AuthenticationService {
   }
 
   @override
-  Future<JwtUserResponse> signIn(dynamic body) async {
-    JwtUserResponse response = await _authenticationRepository.login(body);
+  Future<api.JwtUserResponse> signIn(dynamic body) async {
+    api.JwtUserResponse response = await _authenticationRepository.login(body);
     await box.write('CurrentUser', jsonEncode(response.toJson()));
     return response;
   }

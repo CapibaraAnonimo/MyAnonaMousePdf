@@ -47,8 +47,9 @@ public class BookController {
 
     @GetMapping("/download/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        bookService.addDownload(filename);
         MediaTypeUrlResource resource = (MediaTypeUrlResource) storageService.loadAsResource(filename);
+        if (resource.getType().equals("application/pdf") || resource.getType().equals("application/epub+zip"))
+            bookService.addDownload(filename);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Content-Type", resource.getType())

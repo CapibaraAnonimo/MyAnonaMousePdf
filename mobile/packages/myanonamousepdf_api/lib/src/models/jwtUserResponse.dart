@@ -17,11 +17,13 @@ class JwtUserResponse {
   factory JwtUserResponse.fromJson(Map<String, dynamic> json) =>
       _$JwtUserResponseFromJson(json);
 
+      Map<String, dynamic> toJson() => _$JwtUserResponseToJson(this);
+
   final String token;
   final String refreshToken;
   final String id;
   final String userName;
   final String fullName;
   final String avatar;
-  final DateTime createdAt;
+  final String createdAt;
 }

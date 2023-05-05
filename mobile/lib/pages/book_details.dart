@@ -51,12 +51,21 @@ class BookDetailsBody extends StatelessWidget {
               appBar: AppBar(
                 title: Text(book.title),
                 actions: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        book.amountDownloads.toString(),
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                    ],
+                  ),
                   IconButton(
                       onPressed: () =>
                           {_bookBloc.add(DownloadBook(name: book.book))},
-                      icon: Icon(Icons.download)),
+                      icon: const Icon(Icons.download)),
                   IconButton(
-                      onPressed: () => {}, icon: Icon(Icons.bookmark_border)),
+                      onPressed: () => {}, icon: const Icon(Icons.bookmark_border)),
                 ],
               ),
               body: SingleChildScrollView(
@@ -94,14 +103,6 @@ class BookDetailsBody extends StatelessWidget {
                       const Divider(color: Colors.white),
                       Text(
                         book.description,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize:
-                                MediaQuery.of(context).size.width * 0.055),
-                      ),
-                      const Divider(color: Colors.white),
-                      Text(
-                        book.amountDownloads.toString(),
                         style: TextStyle(
                             color: Colors.white,
                             fontSize:
