@@ -229,9 +229,10 @@ class MyanonamousepdfApiClient {
     final tempDir = await Directory.systemTemp.createTemp();
     final tempFile = File('${tempDir.path}/temp.json');
     await tempFile.writeAsBytes(utf8.encode(jsonEncode(book.toJson())));
-    print(tempFile.readAsStringSync());
+    //print(tempFile.readAsStringSync());
 
-    var request = http.MultipartRequest('PUT', uri);
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['book']  =  jsonEncode(book.toJson());
     //request = jsonToFormData(request, book.toJson());
     request.files.add(await http.MultipartFile.fromPath('file', file.path,
         contentType: MediaType('application', 'pdf')));
@@ -245,9 +246,10 @@ class MyanonamousepdfApiClient {
       contentType: MediaType('application', 'json')
     ));*/
     //request.fields['book'] = jsonEncode(book.toJson());
-    request.fields.addAll({'book': jsonEncode(book.toJson())});
-    print(request.fields.entries);
-    print(request.files.first.contentType);
+    print({'book': jsonEncode(book.toJson())});
+    //request.fields.addAll({'book': jsonEncode(book.toJson())});
+    //request.fields.add
+    //print(request.fields.entries);
 
     request.headers.addAll(headers);
 
@@ -255,21 +257,12 @@ class MyanonamousepdfApiClient {
     //final responseBody = await response.stream.bytesToString();
     print("=======================================================");
     print("Request ${request}");
-    print(request.headers);
-    print(request.toString());
-    //print(request.fields.entries[0].toString());
-    //print(request.files.first.contentType);
     for(var key in request.fields.keys) {
       var field = request.fields[key];
       print(field);      
     }
 
-    for(var multipartFile in request.files) {
-      print(multipartFile.field);
-      print(multipartFile.filename);
-      print(multipartFile.contentType);
-
-    }
+    
     print("=======================================================");
 
     http.Response response = await http.Response.fromStream(await request.send());

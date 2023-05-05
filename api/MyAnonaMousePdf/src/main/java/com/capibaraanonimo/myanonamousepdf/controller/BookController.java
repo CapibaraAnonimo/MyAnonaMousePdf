@@ -4,6 +4,7 @@ import com.capibaraanonimo.myanonamousepdf.dto.book.BookCreatedResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.book.BookResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.book.CreateBook;
 import com.capibaraanonimo.myanonamousepdf.dto.book.UpdateBook;
+import com.capibaraanonimo.myanonamousepdf.model.Book;
 import com.capibaraanonimo.myanonamousepdf.model.User;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteria;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteriaExtractor;
@@ -56,11 +57,12 @@ public class BookController {
                 .body(resource);
     }
 
-    //@PutMapping(path = "/upload", consumes = {"multipart/form-data", "application/json", "application/pdf", "application/epub+zip", "application/octet-stream"})
-
+    @PostMapping(path = "/upload"/*, consumes = {"multipart/form-data", "application/json", "application/pdf", "application/epub+zip", "application/octet-stream"}*/)
     @ResponseStatus(HttpStatus.CREATED)
-    public BookCreatedResponse postBook(@RequestPart("file") MultipartFile file, @RequestPart("book") @Valid CreateBook book, @AuthenticationPrincipal User loggedUser) {
-        System.out.println(book.getCategory());
+    public BookCreatedResponse postBook(@RequestPart("file") MultipartFile file, @RequestParam("book") /*@Valid*/ String strbook, @AuthenticationPrincipal User loggedUser) {
+        System.out.println(strbook);
+        var book = new CreateBook();
+        // System.out.println(book.getCategory());
         return BookCreatedResponse.of(bookService.save(book, file, loggedUser));
     }
 

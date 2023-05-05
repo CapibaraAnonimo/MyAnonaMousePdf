@@ -19,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,6 +36,11 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalRestControllerAdvice extends ResponseEntityExceptionHandler {
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return super.handleHttpMediaTypeNotSupported(ex, headers, status, request);
+    }
 
     @ExceptionHandler({EntityNotFoundException.class})
     public ResponseEntity<?> handleNotFoundException(EntityNotFoundException ex, WebRequest request) {
