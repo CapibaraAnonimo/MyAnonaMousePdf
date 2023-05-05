@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:newmyanonamousepdf/bloc/book_details/book_details.dart';
+import 'package:newmyanonamousepdf/bloc/bookmark/bookmark_bloc.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 
 class BookDetails extends StatelessWidget {
@@ -64,8 +65,32 @@ class BookDetailsBody extends StatelessWidget {
                       onPressed: () =>
                           {_bookBloc.add(DownloadBook(name: book.book))},
                       icon: const Icon(Icons.download)),
+                  BlocProvider<BookmarkBloc>(
+                      create: (context) => BookmarkBloc(),
+                      child: BlocBuilder<BookmarkBloc, BookmarkState>(
+                        builder: (context, state) {
+                          if (state is BookmarkInitial) {
+                            return IconButton(
+                              onPressed: () => {},
+                              icon: const Icon(Icons.bookmark_border),
+                            );
+                          } else if (state is BookmarkLoading) {
+                            return IconButton(
+                              onPressed: () => {},
+                              icon: const Icon(Icons.bookmark_border),
+                            );
+                          } else if (state is BookmarkSuccess) {
+                            return IconButton(
+                              onPressed: () => {},
+                              icon: const Icon(Icons.bookmark, color: Colors.red),
+                            );
+                          }
+                          return Text("");
+                        },
+                      )),
                   IconButton(
-                      onPressed: () => {}, icon: const Icon(Icons.bookmark_border)),
+                      onPressed: () => {},
+                      icon: const Icon(Icons.bookmark_border)),
                 ],
               ),
               body: SingleChildScrollView(
