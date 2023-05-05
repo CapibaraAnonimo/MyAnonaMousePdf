@@ -3,12 +3,14 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http_interceptor/http_interceptor.dart';
 
 typedef DownloadProgress = void Function(
     int toal, int downloaded, double progress);
@@ -142,6 +144,10 @@ class MyanonamousepdfApiClient {
     print(file.path);
     print(book.categoryId);
 
+    /*http.Client client = InterceptedClient.build(interceptors: [
+      LoggingInterceptor(),
+    ], client: http.Client());
+    */
     /*var request = http.MultipartRequest("POST", Uri.parse(_baseUrlApi + url));
     request.files.add(await http.MultipartFile(
       "file",
@@ -228,7 +234,7 @@ class MyanonamousepdfApiClient {
     var request = http.MultipartRequest('PUT', uri);
     //request = jsonToFormData(request, book.toJson());
     request.files.add(await http.MultipartFile.fromPath('file', file.path,
-        contentType: new MediaType('application', 'pdf')));
+        contentType: MediaType('application', 'pdf')));
     /*request.files.add(await http.MultipartFile.fromPath(
       'book',
       tempFile.path, contentType: MediaType.parse('application/json')
@@ -245,8 +251,30 @@ class MyanonamousepdfApiClient {
 
     request.headers.addAll(headers);
 
-    final response = await request.send();
-    final responseBody = await response.stream.bytesToString();
+    //final response = await request.send();
+    //final responseBody = await response.stream.bytesToString();
+    print("=======================================================");
+    print("Request ${request}");
+    print(request.headers);
+    print(request.toString());
+    //print(request.fields.entries[0].toString());
+    //print(request.files.first.contentType);
+    for(var key in request.fields.keys) {
+      var field = request.fields[key];
+      print(field);      
+    }
+
+    for(var multipartFile in request.files) {
+      print(multipartFile.field);
+      print(multipartFile.filename);
+      print(multipartFile.contentType);
+
+    }
+    print("=======================================================");
+
+    http.Response response = await http.Response.fromStream(await request.send());
+    print("Response ${response}");
+    final responseBody = response.body;
     tempFile.delete();
 
     if (response.statusCode == 200) {
@@ -359,4 +387,18 @@ class UnauthorizedException extends CustomException {
 
 class NotFoundException extends CustomException {
   NotFoundException([message]) : super(message, "");
+}
+
+class LoggingInterceptor implements InterceptorContract {
+  @override
+  Future<RequestData> interceptRequest({required RequestData data}) async {
+    print(data.toString());
+    return data;
+  }
+
+  @override
+  Future<ResponseData> interceptResponse({required ResponseData data}) async {
+    print(data.toString());
+    return data;
+  }
 }
