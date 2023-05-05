@@ -337,26 +337,28 @@ class _BodyState extends State<ScreenWidget> {
                             MaterialPageRoute(
                                 builder: (context) => const UserInfo()));
                       },
-                      child: const CircleAvatar(
+                      child: CachedNetworkImage(
+                          height: 50,
+                          width: 50,
+                          imageUrl:
+                              "http://192.168.0.159:8080/book/download/${user!.avatar}",
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                          httpHeaders: {
+                            "Authorization": "Basic $user.token",
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                          }),
+                      /*const CircleAvatar(
                         radius: 48,
                         backgroundImage: NetworkImage(
                             'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg'),
-                      ),
+                      ),*/
                     ),
                   )
                 : const SizedBox.shrink(),
-            CachedNetworkImage(
-                height: 50,
-                width: 50,
-                imageUrl:
-                    "http://192.168.0.159:8080/book/download/${user.avatar}",
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                httpHeaders: {
-                  "Authorization": "Basic $user.token",
-                  "Content-Type": "application/json",
-                  "Accept": "application/json",
-                }),
             const SizedBox(width: 10),
             const Text('Books')
           ]),
