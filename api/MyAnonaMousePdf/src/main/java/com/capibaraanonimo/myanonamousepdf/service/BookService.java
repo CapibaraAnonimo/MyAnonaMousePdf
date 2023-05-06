@@ -41,21 +41,33 @@ public class BookService {
         return books;
     }
 
-    public Book save(CreateBook book, MultipartFile file, User user) { //FIXME no tengo claro ese posible null pointer
+    public UUID save(CreateBook book, User user) {
         System.out.println(user);
-        if (!(file.getContentType().equals("application/pdf") || file.getContentType().equals("application/epub+zip")))
-            throw new ContentTypeNotValidException(file.getContentType());
-        String filename = storageService.store(file);
-
+        System.out.println(user.getId());
         return bookRepository.save(
                 Book.builder()
                         .uploader(user)
-                        .category(categoryService.findById(book.getCategory()))
-                        .book(filename)
+                        .category(categoryService.findById(UUID.fromString(book.getCategory())))
+                        .book("")
                         .title(book.getTitle())
                         .author(book.getAuthor())
                         .description(book.getDescription())
-                        .build());
+                        .build()).getId();
+    }
+
+    public Book saveFile(MultipartFile file, UUID id) { //FIXME no tengo claro ese posible null pointer
+        if (!(file.getContentType().equals("application/pdf") || file.getContentType().equals("application/epub+zip")))
+            throw new ContentTypeNotValidException(file.getContentType());
+        String filename = storageService.store(file);
+        Optional<Book> optionalBook = bookRepository.findById(id);
+        Book book;
+
+        if (optionalBook.isPresent())
+            book = optionalBook.get();
+        else
+            throw new SingleEntityNotFoundException(id, Book.class);
+        book.setBook(filename);
+        return book;
     }
 
     public String saveThumbnail(String file) throws IOException { //TODO ver si se puede hacer esto para el TFG

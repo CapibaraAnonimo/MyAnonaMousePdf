@@ -13,7 +13,7 @@ BookUpload _$BookUploadFromJson(Map<String, dynamic> json) => $checkedCreate(
       json,
       ($checkedConvert) {
         final val = BookUpload(
-          categoryId: $checkedConvert('categoryId', (v) => v as String),
+          category: $checkedConvert('category', (v) => v as String),
           title: $checkedConvert('title', (v) => v as String),
           author: $checkedConvert('author', (v) => v as String),
           description: $checkedConvert('description', (v) => v as String),
@@ -24,7 +24,7 @@ BookUpload _$BookUploadFromJson(Map<String, dynamic> json) => $checkedCreate(
 
 Map<String, dynamic> _$BookUploadToJson(BookUpload instance) =>
     <String, dynamic>{
-      'categoryId': instance.categoryId,
+      'category': instance.category,
       'title': instance.title,
       'author': instance.author,
       'description': instance.description,
