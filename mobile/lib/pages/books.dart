@@ -253,7 +253,7 @@ class _BodyState extends State<ScreenWidget> {
                         onPressed: () {
                           bookService.upload(
                             BookUpload(
-                              categoryId: _categoryController,
+                              category: _categoryController,
                               title: _titleController.text,
                               author: _authorController.text,
                               description: _descriptionController.text,

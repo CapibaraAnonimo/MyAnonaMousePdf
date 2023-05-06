@@ -37,6 +37,6 @@ class BookRepository {
   }
 
   void upload(BookUpload book, File file, String token, String refreshToken) {
-    _myanonamousepdfApiClient.upload('book/upload', book, file, token, refreshToken);
+    _myanonamousepdfApiClient.upload(book, file, token, refreshToken);
   }
 }

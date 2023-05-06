@@ -10,7 +10,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http_interceptor/http_interceptor.dart';
 
 typedef DownloadProgress = void Function(
     int toal, int downloaded, double progress);
@@ -20,8 +19,8 @@ class MyanonamousepdfApiClient {
       : _httpClient = httpClient ?? http.Client();
 
   //static String _baseUrlApi = "http://localhost:8080/";
-  static String _baseUrlApi = "http://10.0.2.2:8080/";
-  //static String _baseUrlApi = "http://192.168.0.159:8080/";
+  //static String _baseUrlApi = "http://10.0.2.2:8080/";
+  static String _baseUrlApi = "http://192.168.0.159:8080/";
 
   final http.Client _httpClient;
 
@@ -138,11 +137,11 @@ class MyanonamousepdfApiClient {
     return completer.future;
   }
 
-  Future<dynamic> upload(String url, BookUpload book, File file, String token,
-      String refreshToken) async {
-    print(_baseUrlApi + url);
+  Future<dynamic> upload(
+      BookUpload book, File file, String token, String refreshToken) async {
+    print(_baseUrlApi);
     print(file.path);
-    print(book.categoryId);
+    print(book.category);
 
     /*http.Client client = InterceptedClient.build(interceptors: [
       LoggingInterceptor(),
@@ -224,57 +223,36 @@ class MyanonamousepdfApiClient {
       'Authorization': 'Bearer ${token}'
     };
 
-    Uri uri = Uri.parse(_baseUrlApi + url);
+    Uri uri = Uri.parse(_baseUrlApi + 'book/upload/json');
+    print(jsonEncode(book.toJson()));
 
-    final tempDir = await Directory.systemTemp.createTemp();
-    final tempFile = File('${tempDir.path}/temp.json');
-    await tempFile.writeAsBytes(utf8.encode(jsonEncode(book.toJson())));
-    //print(tempFile.readAsStringSync());
+    final postResponse =
+        await _httpClient.post(uri, body: jsonEncode(book.toJson()), headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "bearer " + token,
+    });
+    print("Response ${postResponse}");
+    final responseBody = postResponse.body;
+    print('Response body = ' + responseBody);
+    print(postResponse.statusCode);
 
-    var request = http.MultipartRequest('POST', uri)
-      ..fields['book']  =  jsonEncode(book.toJson());
-    //request = jsonToFormData(request, book.toJson());
-    request.files.add(await http.MultipartFile.fromPath('file', file.path,
-        contentType: MediaType('application', 'pdf')));
-    /*request.files.add(await http.MultipartFile.fromPath(
-      'book',
-      tempFile.path, contentType: MediaType.parse('application/json')
-    ));*/
-    /*request.files.add(http.MultipartFile.fromString(
-      'book',
-      jsonEncode(book.toJson()),
-      contentType: MediaType('application', 'json')
-    ));*/
-    //request.fields['book'] = jsonEncode(book.toJson());
-    print({'book': jsonEncode(book.toJson())});
-    //request.fields.addAll({'book': jsonEncode(book.toJson())});
-    //request.fields.add
-    //print(request.fields.entries);
+    if (postResponse.statusCode == 201) {
+      print('Primera parte consegida');
+      uri = Uri.parse(
+          _baseUrlApi + 'book/upload/file/' + responseBody);
+      print(uri);
+      var request = http.MultipartRequest('POST', uri);
+      request.files.add(await http.MultipartFile.fromPath('file', file.path,
+          contentType: MediaType('application', 'pdf')));
 
-    request.headers.addAll(headers);
+      var response = await request.send();
 
-    //final response = await request.send();
-    //final responseBody = await response.stream.bytesToString();
-    print("=======================================================");
-    print("Request ${request}");
-    for(var key in request.fields.keys) {
-      var field = request.fields[key];
-      print(field);      
-    }
+      //var responsed = await http.Response.fromStream(response);
+      final responseData =
+          json.decode((await http.Response.fromStream(response)).body);
 
-    
-    print("=======================================================");
-
-    http.Response response = await http.Response.fromStream(await request.send());
-    print("Response ${response}");
-    final responseBody = response.body;
-    tempFile.delete();
-
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(responseBody);
-      print('Upload success: $jsonResponse');
-    } else {
-      print('Upload failed with status ${response.statusCode}: $responseBody');
+      print(response.statusCode);
     }
 
     return '';
@@ -380,18 +358,4 @@ class UnauthorizedException extends CustomException {
 
 class NotFoundException extends CustomException {
   NotFoundException([message]) : super(message, "");
-}
-
-class LoggingInterceptor implements InterceptorContract {
-  @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
-    print(data.toString());
-    return data;
-  }
-
-  @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async {
-    print(data.toString());
-    return data;
-  }
 }

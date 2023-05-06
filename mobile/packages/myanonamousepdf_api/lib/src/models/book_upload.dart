@@ -5,7 +5,7 @@ part 'book_upload.g.dart';
 @JsonSerializable(fieldRename: FieldRename.none)
 class BookUpload {
   const BookUpload({
-    required this.categoryId,
+    required this.category,
     required this.title,
     required this.author,
     required this.description,
@@ -16,7 +16,7 @@ class BookUpload {
 
   Map<String, dynamic> toJson() => _$BookUploadToJson(this);
 
-  final String categoryId;
+  final String category;
   final String title;
   final String author;
   final String description;
