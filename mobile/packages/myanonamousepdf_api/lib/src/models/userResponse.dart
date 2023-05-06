@@ -19,5 +19,5 @@ class UserResponse {
   final String userName;
   final String fullName;
   final String avatar;
-  final DateTime createdAt;
+  final String createdAt;
 }

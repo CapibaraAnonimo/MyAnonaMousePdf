@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
+import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:newmyanonamousepdf/bloc/book_details/book_details.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 

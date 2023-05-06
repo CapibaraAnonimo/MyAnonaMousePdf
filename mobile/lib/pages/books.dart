@@ -17,6 +17,7 @@ import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/service/book_service.dart';
 import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
 import 'package:newmyanonamousepdf/service/category_service.dart';
+import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:path/path.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 
@@ -243,6 +244,7 @@ class _BodyState extends State<ScreenWidget> {
                     },
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
                           onPressed: () {
@@ -250,8 +252,8 @@ class _BodyState extends State<ScreenWidget> {
                           },
                           child: const Text('Cancel Upload')),
                       ElevatedButton(
-                        onPressed: () {
-                          bookService.upload(
+                        onPressed: () async {
+                          Book book = await bookService.upload(
                             BookUpload(
                               category: _categoryController,
                               title: _titleController.text,
@@ -261,6 +263,54 @@ class _BodyState extends State<ScreenWidget> {
                             file,
                           );
                           Navigator.pop(context);
+                          // ignore: use_build_context_synchronously
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 30, 30, 30),
+                                    title: const Text(
+                                      "Book Uploaded",
+                                      style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 165, 165, 165),
+                                      ),
+                                    ),
+                                    content: Text(
+                                      "${book.title}was uploaded successfully.",
+                                      style: const TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 165, 165, 165),
+                                      ),
+                                    ),
+                                    actions: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text("Close")),
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        BookDetails(
+                                                            id: book.id),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text("Go to Book"))
+                                        ],
+                                      )
+                                    ]);
+                              });
                         },
                         child: const Text('Upload'),
                       ),
@@ -338,8 +388,15 @@ class _BodyState extends State<ScreenWidget> {
                                 builder: (context) => const UserInfo()));
                       },
                       child: CachedNetworkImage(
-                          height: 50,
-                          width: 50,
+                          imageBuilder: (context, imageProvider) => Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: imageProvider, fit: BoxFit.cover),
+                                ),
+                              ),
                           imageUrl:
                               "http://192.168.0.159:8080/book/download/${user!.avatar}",
                           placeholder: (context, url) =>

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
+import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart'
     as repo;
 
@@ -36,7 +37,7 @@ class BookRepository {
     );
   }
 
-  void upload(BookUpload book, File file, String token, String refreshToken) {
-    _myanonamousepdfApiClient.upload(book, file, token, refreshToken);
+  Future<Book> upload(BookUpload book, File file, String token, String refreshToken) {
+    return _myanonamousepdfApiClient.upload(book, file, token, refreshToken);
   }
 }

@@ -41,8 +41,16 @@ class UserInfo extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(30.0),
                         child: CachedNetworkImage(
-                            height: 100,
-                            width: 100,
+                            imageBuilder: (context, imageProvider) => Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.cover),
+                                  ),
+                                ),
                             imageUrl:
                                 "http://192.168.0.159:8080/book/download/${user.avatar}",
                             placeholder: (context, url) =>

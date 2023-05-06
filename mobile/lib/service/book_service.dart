@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
+import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 
 abstract class BookService {
@@ -56,9 +57,9 @@ class JwtBookService extends BookService {
   }
 
   @override
-  void upload(BookUpload book, File file) async {
+  Future<Book> upload(BookUpload book, File file) async {
     JwtUserResponse user =
         JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
-    _bookRepository.upload(book, file, user.token, user.refreshToken);
+    return _bookRepository.upload(book, file, user.token, user.refreshToken);
   }
 }

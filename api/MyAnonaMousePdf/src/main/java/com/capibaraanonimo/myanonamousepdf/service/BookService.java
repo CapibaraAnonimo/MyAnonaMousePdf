@@ -42,6 +42,8 @@ public class BookService {
     }
 
     public UUID save(CreateBook book, User user) {
+        System.out.println(user);
+        System.out.println(user.getId());
         return bookRepository.save(
                 Book.builder()
                         .uploader(user)

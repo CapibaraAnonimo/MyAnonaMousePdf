@@ -1,10 +1,8 @@
 package com.capibaraanonimo.myanonamousepdf.controller;
 
-import com.capibaraanonimo.myanonamousepdf.dto.book.BookCreatedResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.book.BookResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.book.CreateBook;
 import com.capibaraanonimo.myanonamousepdf.dto.book.UpdateBook;
-import com.capibaraanonimo.myanonamousepdf.model.Book;
 import com.capibaraanonimo.myanonamousepdf.model.User;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteria;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteriaExtractor;
@@ -60,14 +58,15 @@ public class BookController {
     @PostMapping(path = "/upload/json")
     @ResponseStatus(HttpStatus.CREATED)
     public UUID postBookJSon(@RequestBody @Valid CreateBook book, @AuthenticationPrincipal User loggedUser) {
+        System.out.println("Fresh User: " + loggedUser);
         return bookService.save(book, loggedUser);
     }
 
     @PostMapping(path = "/upload/file/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookCreatedResponse postBookFile(@PathVariable String id, @RequestPart("file") MultipartFile file, @AuthenticationPrincipal User loggedUser) {
+    public BookResponse postBookFile(@PathVariable String id, @RequestPart("file") MultipartFile file) {
 
-        return BookCreatedResponse.of(bookService.saveFile(file, UUID.fromString(id)));
+        return BookResponse.of(bookService.saveFile(file, UUID.fromString(id)));
     }
 
     @PutMapping("/edit/{id}")
