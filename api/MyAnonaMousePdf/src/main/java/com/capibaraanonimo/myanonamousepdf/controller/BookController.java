@@ -57,13 +57,17 @@ public class BookController {
                 .body(resource);
     }
 
-    @PostMapping(path = "/upload"/*, consumes = {"multipart/form-data", "application/json", "application/pdf", "application/epub+zip", "application/octet-stream"}*/)
+    @PostMapping(path = "/upload/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public BookCreatedResponse postBook(@RequestPart("file") MultipartFile file, @RequestParam("book") /*@Valid*/ String strbook, @AuthenticationPrincipal User loggedUser) {
-        System.out.println(strbook);
-        var book = new CreateBook();
-        // System.out.println(book.getCategory());
-        return BookCreatedResponse.of(bookService.save(book, file, loggedUser));
+    public UUID postBookJSon(@RequestBody @Valid CreateBook book, @AuthenticationPrincipal User loggedUser) {
+        return bookService.save(book, loggedUser);
+    }
+
+    @PostMapping(path = "/upload/file/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BookCreatedResponse postBookFile(@PathVariable String id, @RequestPart("file") MultipartFile file, @AuthenticationPrincipal User loggedUser) {
+
+        return BookCreatedResponse.of(bookService.saveFile(file, UUID.fromString(id)));
     }
 
     @PutMapping("/edit/{id}")
@@ -72,7 +76,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) //FIXME hacer que se borre solo por el usuario que lo creo o un admin
+    @ResponseStatus(HttpStatus.NO_CONTENT) //FIXME hacer que se borre solo por el usuario que lo creo o un admin y que devuelva siempre un no content
     public void deleteBook(@PathVariable String id) {
         bookService.deleteById(UUID.fromString(id));
     }
