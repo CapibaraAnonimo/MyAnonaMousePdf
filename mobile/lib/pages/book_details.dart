@@ -69,7 +69,10 @@ class BookDetailsBody extends StatelessWidget {
                       create: (context) => BookmarkBloc(),
                       child: BlocBuilder<BookmarkBloc, BookmarkState>(
                         builder: (context, state) {
+                          final _bookmarkBloc =
+                              BlocProvider.of<BookmarkBloc>(context);
                           if (state is BookmarkInitial) {
+                            _bookmarkBloc.add(LoadBookmarkState(id: book.id));
                             return IconButton(
                               onPressed: () => {},
                               icon: const Icon(Icons.bookmark_border),
@@ -77,20 +80,32 @@ class BookDetailsBody extends StatelessWidget {
                           } else if (state is BookmarkLoading) {
                             return IconButton(
                               onPressed: () => {},
-                              icon: const Icon(Icons.bookmark_border),
+                              icon: const Icon(Icons.circle,
+                                  color: Colors.amber),
                             );
                           } else if (state is BookmarkSuccess) {
-                            return IconButton(
-                              onPressed: () => {},
-                              icon: const Icon(Icons.bookmark, color: Colors.red),
-                            );
+                            if (state.bookmarkCurrentState) {
+                              return IconButton(
+                                onPressed: () => {
+                                  _bookmarkBloc
+                                      .add(ChangeBookmarkState(id: book.id))
+                                },
+                                icon: const Icon(Icons.bookmark,
+                                    color: Colors.red),
+                              );
+                            } else {
+                              return IconButton(
+                                onPressed: () => {
+                                  _bookmarkBloc
+                                      .add(ChangeBookmarkState(id: book.id))
+                                },
+                                icon: const Icon(Icons.bookmark_border),
+                              );
+                            }
                           }
-                          return Text("");
+                          return const Text("");
                         },
                       )),
-                  IconButton(
-                      onPressed: () => {},
-                      icon: const Icon(Icons.bookmark_border)),
                 ],
               ),
               body: SingleChildScrollView(

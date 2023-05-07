@@ -18,8 +18,8 @@ class MyanonamousepdfApiClient {
       : _httpClient = httpClient ?? http.Client();
 
   //static String _baseUrlApi = "http://localhost:8080/";
-  static String _baseUrlApi = "http://10.0.2.2:8080/";
-  //static String _baseUrlApi = "http://192.168.0.159:8080/";
+  //static String _baseUrlApi = "http://10.0.2.2:8080/";
+  static String _baseUrlApi = "http://192.168.0.159:8080/";
 
   final http.Client _httpClient;
 
@@ -61,10 +61,28 @@ class MyanonamousepdfApiClient {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "bearer " + token,
+        "Authorization": "Bearer " + token,
       },
     );
 
+    print(postResponse.statusCode);
+    return postResponse;
+  }
+
+  Future<dynamic> putAuth(String url, String token, String refreshToken) async {
+    print(_baseUrlApi + url);
+    final uri = Uri.parse(_baseUrlApi + url);
+
+    final postResponse = await _httpClient.put(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+    );
+    
+    print(postResponse.statusCode);
     return postResponse;
   }
 
@@ -75,7 +93,7 @@ class MyanonamousepdfApiClient {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "bearer $token",
+        "Authorization": "Bearer $token",
       },
     );
     final bytes = response.bodyBytes;
@@ -98,7 +116,7 @@ class MyanonamousepdfApiClient {
     request.headers.addAll({
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": "bearer " + token,
+      "Authorization": "Bearer " + token,
     });
     final response = client.send(request);
 

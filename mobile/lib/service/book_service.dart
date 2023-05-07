@@ -10,6 +10,8 @@ abstract class BookService {
   Future<Book> getBookById(String id);
   void download(String name);
   void upload(BookUpload book, File file);
+  Future<bool> isBookmarked(String id);
+  Future<bool> changeBookmark(String id);
 }
 
 class JwtBookService extends BookService {
@@ -60,5 +62,19 @@ class JwtBookService extends BookService {
     JwtUserResponse user =
         JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
     _bookRepository.upload(book, file, user.token, user.refreshToken);
+  }
+
+  @override
+  Future<bool> isBookmarked(String id) async {
+    JwtUserResponse user =
+        JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+    return await _bookRepository.isBookmarked(id, user.token, user.refreshToken);
+  }
+
+  @override
+  Future<bool> changeBookmark(String id) async {
+    JwtUserResponse user =
+        JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+    return await _bookRepository.changeBookmark(id, user.token, user.refreshToken);
   }
 }

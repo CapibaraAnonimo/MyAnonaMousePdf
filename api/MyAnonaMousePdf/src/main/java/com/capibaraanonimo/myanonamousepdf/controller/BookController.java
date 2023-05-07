@@ -74,11 +74,15 @@ public class BookController {
         bookService.deleteById(UUID.fromString(id));
     }
 
-    @PutMapping("/bookmark/{id}") //TODO ¿como hago esto para no usar un response entity a palo?
-    public ResponseEntity bookmarkBook(@PathVariable String id, @AuthenticationPrincipal User loggedUser) {
+    @GetMapping("/bookmark/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Boolean> isBookBookmarked(@PathVariable String id, @AuthenticationPrincipal User loggedUser) {
+        return ResponseEntity.ok().body(bookService.isBookBookmarked(loggedUser, UUID.fromString(id)));
+    }
+
+    @PutMapping("/bookmark/{id}")
+    public ResponseEntity<Boolean> bookmarkBook(@PathVariable String id, @AuthenticationPrincipal User loggedUser) {
         boolean response = bookService.switchBookmark(loggedUser, UUID.fromString(id));
-        if (response)
-            return ResponseEntity.ok().build();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(response);
     }
 }
