@@ -36,10 +36,8 @@ class BookRepository {
     );
   }
 
-  void upload(BookUpload book, File file, String token, String refreshToken) {
-    _myanonamousepdfApiClient.upload(
-        'book/upload', book, file, token, refreshToken);
-  }
+  Future<Book> upload(BookUpload book, File file, String token, String refreshToken) {
+    return _myanonamousepdfApiClient.upload(book, file, token, refreshToken);
 
   Future<bool> isBookmarked(
       String id, String token, String refreshToken) async {

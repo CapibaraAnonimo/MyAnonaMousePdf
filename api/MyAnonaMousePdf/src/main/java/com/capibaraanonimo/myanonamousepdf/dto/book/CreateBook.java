@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class CreateBook {
     @CategoryExist(message = "{createBook.category.exist}")
-    private UUID category;
+    private String category;
 
     @NotEmpty(message = "{createBook.title.empty}")
     private  String title;

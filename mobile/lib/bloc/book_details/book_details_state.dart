@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
+import 'package:myanonamousepdf_api/src/models/book.dart';
 
 abstract class BookDetailsState extends Equatable {
   @override

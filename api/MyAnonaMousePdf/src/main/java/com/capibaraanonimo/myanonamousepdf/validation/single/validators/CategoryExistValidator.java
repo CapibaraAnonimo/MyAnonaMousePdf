@@ -8,12 +8,13 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.UUID;
 
-public class CategoryExistValidator implements ConstraintValidator<CategoryExist, UUID> {
+public class CategoryExistValidator implements ConstraintValidator<CategoryExist, String> {
     @Autowired
     private CategoryService categoryService;
 
     @Override
-    public boolean isValid(UUID id, ConstraintValidatorContext constraintValidatorContext) {
-        return categoryService.existsById(id);
+    public boolean isValid(String id, ConstraintValidatorContext constraintValidatorContext) {
+        System.out.println(id);
+        return categoryService.existsById(UUID.fromString(id));
     }
 }

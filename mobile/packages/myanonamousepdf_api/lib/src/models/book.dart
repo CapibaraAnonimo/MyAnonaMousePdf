@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
+import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 
 part 'book.g.dart';
 

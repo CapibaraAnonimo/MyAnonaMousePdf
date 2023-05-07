@@ -3,9 +3,11 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:myanonamousepdf_api/src/models/bookCategory.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 import 'package:path_provider/path_provider.dart';
@@ -154,134 +156,40 @@ class MyanonamousepdfApiClient {
     return completer.future;
   }
 
-  Future<dynamic> upload(String url, BookUpload book, File file, String token,
-      String refreshToken) async {
-    print(_baseUrlApi + url);
+  Future<Book> upload(
+      BookUpload book, File file, String token, String refreshToken) async {
     print(file.path);
-    print(book.categoryId);
-
-    /*var request = http.MultipartRequest("POST", Uri.parse(_baseUrlApi + url));
-    request.files.add(await http.MultipartFile(
-      "file",
-      http.ByteStream(file.openRead()),
-      await file.length(),
-      contentType: MediaType.parse(file.path.endsWith('.pdf') ? 'application/pdf' : 'application/epub+zip'),
-    ));
-    request.fields['book'] = jsonEncode(book);
-    request.headers.addAll({
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      //'content-type': 'multipart/form-data',
-      "Authorization": "bearer $token",
-    });
-    request.send().then((response) async {
-      print('Response: ${response.statusCode}');
-      print('Response: ${await response.stream.bytesToString()}');
-      if (response.statusCode == 200) print("Uploaded!");
-    });
-
-    return 'test';
-    //return _response(postResponse);*/
-
-    /*var request = http.MultipartRequest('POST', Uri.parse(_baseUrlApi + url));
-    request.headers.addAll({
-      //"Content-Type": "application/json",
-      //"Accept": "application/json",
-      'Content-Type': 'multipart/form-data',
-      "Authorization": "bearer $token",
-    });
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        "file",
-        file.path,
-        contentType: MediaType.parse('multipart/form-data'),
-        /*MediaType.parse(file.path.endsWith('.pdf')
-              ? 'application/pdf'
-              : 'application/epub+zip'),*/
-      ),
-    );
-    request.fields['book'] = jsonEncode(book);
-    var response = await request.send();
-
-    var responsed = await http.Response.fromStream(response);
-    final responseData = json.decode(responsed.body);
-
-    print('Response: ${response.statusCode}');
-    print('Response: ${responsed.body}');
-
-    if (response.statusCode == 200) {
-      print("SUCCESS");
-      print(responseData);
-    } else {
-      print("ERROR");
-    }*/
-
-    /*final uri = Uri.parse(_baseUrlApi + url);
-    final request = http.MultipartRequest('POST', uri);
-    request.headers.addAll({
-      "Authorization": "bearer $token",
-      "Content-Type": "multipart/form-data"
-    });
-    request.fields['book'] = jsonEncode(book.toJson());
-    request.files.add(await http.MultipartFile.fromBytes(
-      'file',
-      await file.readAsBytes(),
-      /*(await rootBundle.load(file.path)).buffer.asUint8List(),*/
-      filename: file.path.split('/').last,
-      contentType: MediaType('application', 'pdf'),
-    ));*/
 
     Map<String, String> headers = {
       'Content-Type': 'multipart/form-data',
       'Authorization': 'Bearer ${token}'
     };
 
-    Uri uri = Uri.parse(_baseUrlApi + url);
+    Uri uri = Uri.parse(_baseUrlApi + 'book/upload/json');
 
-    final tempDir = await Directory.systemTemp.createTemp();
-    final tempFile = File('${tempDir.path}/temp.json');
-    await tempFile.writeAsBytes(utf8.encode(jsonEncode(book.toJson())));
-    print(tempFile.readAsStringSync());
+    final postResponse =
+        await _httpClient.post(uri, body: jsonEncode(book.toJson()), headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "Bearer " + token,
+    });
+    final responseBody = postResponse.body;
 
-    var request = http.MultipartRequest('PUT', uri);
-    //request = jsonToFormData(request, book.toJson());
-    request.files.add(await http.MultipartFile.fromPath('file', file.path,
-        contentType: new MediaType('application', 'pdf')));
-    /*request.files.add(await http.MultipartFile.fromPath(
-      'book',
-      tempFile.path, contentType: MediaType.parse('application/json')
-    ));*/
-    /*request.files.add(http.MultipartFile.fromString(
-      'book',
-      jsonEncode(book.toJson()),
-      contentType: MediaType('application', 'json')
-    ));*/
-    //request.fields['book'] = jsonEncode(book.toJson());
-    request.fields.addAll({'book': jsonEncode(book.toJson())});
-    print(request.fields.entries);
-    print(request.files.first.contentType);
+    if (postResponse.statusCode == 201) {
+      String body = responseBody.toString().replaceAll('"', '');
+      uri = Uri.parse('${_baseUrlApi}book/upload/file/${body}');
+      var request = http.MultipartRequest('POST', uri);
+      request.files.add(await http.MultipartFile.fromPath('file', file.path,
+          contentType: MediaType('application', 'pdf')));
 
-    request.headers.addAll(headers);
+      var response = await request.send();
 
-    final response = await request.send();
-    final responseBody = await response.stream.bytesToString();
-    tempFile.delete();
+      final responseData =
+          json.decode((await http.Response.fromStream(response)).body);
 
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(responseBody);
-      print('Upload success: $jsonResponse');
-    } else {
-      print('Upload failed with status ${response.statusCode}: $responseBody');
+      return Book.fromJson(responseData);
     }
-
-    return '';
-  }
-
-  jsonToFormData(http.MultipartRequest request, Map<String, dynamic> data) {
-    for (var key in data.keys) {
-      request.fields[key] = data[key].toString();
-    }
-    return request;
+    throw UploadException("There was an error uploading the book");
   }
 
   dynamic _response(http.Response response) {
@@ -377,4 +285,8 @@ class UnauthorizedException extends CustomException {
 
 class NotFoundException extends CustomException {
   NotFoundException([message]) : super(message, "");
+}
+
+class UploadException extends CustomException {
+  UploadException([message]) : super(message, "");
 }
