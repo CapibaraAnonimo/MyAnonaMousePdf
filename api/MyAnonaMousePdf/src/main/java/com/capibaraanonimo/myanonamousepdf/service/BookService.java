@@ -145,6 +145,14 @@ public class BookService {
             userService.save(loggedUser);
             return true;
         }
+    }
 
+    public boolean isBookBookmarked(User loggedUser, UUID id) {
+        Book book = findById(id);
+        Optional<User> user = userRepository.findUserById(loggedUser.getId());
+        if (user.isEmpty())
+            throw new SingleEntityNotFoundException(loggedUser.getId(), User.class);
+        List<Book> bookmarks = user.get().getBookmarks();
+        return bookmarks.contains(book);
     }
 }

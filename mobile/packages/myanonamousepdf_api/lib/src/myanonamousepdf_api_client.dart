@@ -63,10 +63,28 @@ class MyanonamousepdfApiClient {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "bearer " + token,
+        "Authorization": "Bearer " + token,
       },
     );
 
+    print(postResponse.statusCode);
+    return postResponse;
+  }
+
+  Future<dynamic> putAuth(String url, String token, String refreshToken) async {
+    print(_baseUrlApi + url);
+    final uri = Uri.parse(_baseUrlApi + url);
+
+    final postResponse = await _httpClient.put(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+    );
+    
+    print(postResponse.statusCode);
     return postResponse;
   }
 
@@ -77,7 +95,7 @@ class MyanonamousepdfApiClient {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "bearer $token",
+        "Authorization": "Bearer $token",
       },
     );
     final bytes = response.bodyBytes;
@@ -100,7 +118,7 @@ class MyanonamousepdfApiClient {
     request.headers.addAll({
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": "bearer " + token,
+      "Authorization": "Bearer " + token,
     });
     final response = client.send(request);
 
