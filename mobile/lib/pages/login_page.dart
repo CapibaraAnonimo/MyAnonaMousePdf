@@ -6,6 +6,9 @@ import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/bloc/login/login.dart';
 
 class LoginPage extends StatelessWidget {
+  final String? error;
+
+  const LoginPage({super.key, this.error});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,6 +20,9 @@ class LoginPage extends StatelessWidget {
           child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
             builder: (context, state) {
               final authBloc = BlocProvider.of<AuthenticationBloc>(context);
+              if (error != null) {
+                authBloc.add(AuthenticationError(error: error!));
+              }
               if (state is AuthenticationNotAuthenticated) {
                 return _AuthForm();
               }
@@ -37,8 +43,13 @@ class LoginPage extends StatelessWidget {
                   ],
                 ));
               }
+              if (state is AuthenticationErrorState) {
+                return _AuthForm(
+                  error: error,
+                );
+              }
               // return splash screen
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                 ),
@@ -50,6 +61,9 @@ class LoginPage extends StatelessWidget {
 }
 
 class _AuthForm extends StatelessWidget {
+  final String? error;
+
+  const _AuthForm({super.key, this.error});
   @override
   Widget build(BuildContext context) {
     //final authService = RepositoryProvider.of<AuthenticationService>(context);
@@ -60,15 +74,20 @@ class _AuthForm extends StatelessWidget {
       alignment: Alignment.center,
       child: BlocProvider<LoginBloc>(
         create: (context) => LoginBloc(authBloc, authService),
-        child: _SignInForm(),
+        child: _SignInForm(
+          error: error,
+        ),
       ),
     );
   }
 }
 
 class _SignInForm extends StatefulWidget {
+  final String? error;
+
+  const _SignInForm({super.key, this.error});
   @override
-  __SignInFormState createState() => __SignInFormState();
+  __SignInFormState createState() => __SignInFormState(error: error);
 }
 
 class __SignInFormState extends State<_SignInForm> {
@@ -76,6 +95,9 @@ class __SignInFormState extends State<_SignInForm> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   bool _autoValidate = false;
+  final String? error;
+
+  __SignInFormState({this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -108,120 +130,131 @@ class __SignInFormState extends State<_SignInForm> {
           }
           if (state is LoginSuccess) {
             Navigator.of(context).pop();
-          }
-          return Form(
-            key: _key,
-            autovalidateMode: _autoValidate
-                ? AutovalidateMode.always
-                : AutovalidateMode.disabled,
-            child: SingleChildScrollView(
-              child: Column(
-                //crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  TextFormField(
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 165, 165, 165),
-                    ),
-                    decoration: const InputDecoration(
-                      labelStyle: TextStyle(
+          } else {
+            if (error != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(error!,style: const TextStyle(fontSize: 20),),
+                  elevation: 10.0,
+                  behavior: SnackBarBehavior.floating,
+                ));
+              });
+            }
+            return Form(
+              key: _key,
+              autovalidateMode: _autoValidate
+                  ? AutovalidateMode.always
+                  : AutovalidateMode.disabled,
+              child: SingleChildScrollView(
+                child: Column(
+                  //crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    TextFormField(
+                      style: TextStyle(
                         color: Color.fromARGB(255, 165, 165, 165),
                       ),
-                      fillColor: Color.fromARGB(255, 32, 32, 32),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                        color: Color.fromARGB(255, 165, 165, 165),
-                      )),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
+                      decoration: const InputDecoration(
+                        labelStyle: TextStyle(
                           color: Color.fromARGB(255, 165, 165, 165),
                         ),
-                      ),
-                      labelText: 'Username',
-                      filled: true,
-                      isDense: true,
-                    ),
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Email is required.';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(
-                    height: 12,
-                  ),
-                  TextFormField(
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 165, 165, 165),
-                    ),
-                    decoration: const InputDecoration(
-                      labelStyle: TextStyle(
-                        color: Color.fromARGB(255, 165, 165, 165),
-                      ),
-                      fillColor: Color.fromARGB(255, 32, 32, 32),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                        color: Color.fromARGB(255, 165, 165, 165),
-                      )),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
+                        fillColor: Color.fromARGB(255, 32, 32, 32),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
                           color: Color.fromARGB(255, 165, 165, 165),
+                        )),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(255, 165, 165, 165),
+                          ),
                         ),
+                        labelText: 'Username',
+                        filled: true,
+                        isDense: true,
                       ),
-                      labelText: 'Password',
-                      filled: true,
-                      isDense: true,
-                    ),
-                    obscureText: true,
-                    controller: _passwordController,
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Password is required.';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  SizedBox(
-                    width: 100,
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RegisterPage()));
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      autocorrect: false,
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Email is required.';
+                        }
+                        return null;
                       },
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    TextFormField(
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 165, 165, 165),
+                      ),
+                      decoration: const InputDecoration(
+                        labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        ),
+                        fillColor: Color.fromARGB(255, 32, 32, 32),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                          color: Color.fromARGB(255, 165, 165, 165),
+                        )),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(255, 165, 165, 165),
+                          ),
+                        ),
+                        labelText: 'Password',
+                        filled: true,
+                        isDense: true,
+                      ),
+                      obscureText: true,
+                      controller: _passwordController,
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Password is required.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RegisterPage()));
+                        },
+                        child: Text(
+                          'Register',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    //RaisedButton(
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(40),
+                      ),
+                      //color: Theme.of(context).primaryColor,
+                      //textColor: Colors.white,
+                      //padding: const EdgeInsets.all(16),
+                      //shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(8.0)),
                       child: Text(
-                        'Register',
+                        'LOG IN',
                         style: TextStyle(color: Colors.white),
                       ),
-                    ),
-                  ),
-                  //RaisedButton(
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(40),
-                    ),
-                    //color: Theme.of(context).primaryColor,
-                    //textColor: Colors.white,
-                    //padding: const EdgeInsets.all(16),
-                    //shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(8.0)),
-                    child: Text(
-                      'LOG IN',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed:
-                        state is LoginLoading ? () {} : _onLoginButtonPressed,
-                  )
-                ],
+                      onPressed:
+                          state is LoginLoading ? () {} : _onLoginButtonPressed,
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          }
+          return const Text("End of login");
         },
       ),
     );

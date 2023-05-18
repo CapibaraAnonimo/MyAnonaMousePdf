@@ -87,11 +87,13 @@ public class SecurityConfig {
                 //.antMatchers("/book/**").hasRole("USER")
                 .antMatchers("/auth/register/admin").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/book/download/**").hasAnyRole()
-                .antMatchers("/book/upload/**").hasAnyRole()
-                .antMatchers("/book/edit/**").hasAnyRole()
-                .antMatchers("/book/delete/**").hasAnyRole()
-                .anyRequest().authenticated();
+                .antMatchers("/book").hasAnyRole("USER", "VIP", "ADMIN")
+                .antMatchers("/book/download/**").hasAnyRole("USER", "VIP", "ADMIN")
+                .antMatchers("/book/upload/**").hasAnyRole("USER", "VIP", "ADMIN")
+                .antMatchers("/book/edit/**").hasAnyRole("USER", "VIP", "ADMIN")
+                .antMatchers("/book/delete/**").hasAnyRole("USER", "VIP", "ADMIN")
+                .antMatchers("/refreshtoken").authenticated()
+                .anyRequest().permitAll();
 
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -104,7 +106,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().antMatchers("/h2-console/**", "/auth/register", "/auth/login", "/refreshtoken", "/book/**", "/category", "/category/**"));
+        return (web -> web.ignoring().antMatchers("/h2-console/**", "/auth/register", "/auth/login", "/refreshtoken"));
     }
 
 

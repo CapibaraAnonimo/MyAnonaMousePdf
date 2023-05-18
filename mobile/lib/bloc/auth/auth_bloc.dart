@@ -15,6 +15,7 @@ class AuthenticationBloc
     on<AppLoaded>(_onAppLoaded);
     on<UserLoggedIn>(_onUserLoggedIn);
     on<UserLoggedOut>(_onUserLoggedOut);
+    on<AuthenticationError>(_onAuthenticationError);
   }
 
   _onAppLoaded(
@@ -50,5 +51,13 @@ class AuthenticationBloc
   ) async {
     await _authenticationService.signOut();
     emit(AuthenticationNotAuthenticated());
+  }
+
+  _onAuthenticationError(
+    AuthenticationError event,
+    Emitter<AuthenticationState> emit,
+  ) async {
+    await _authenticationService.signOut();
+    emit(AuthenticationErrorState());
   }
 }
