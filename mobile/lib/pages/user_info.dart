@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
+import 'package:newmyanonamousepdf/util/globals.dart' as globals;
 
 import '../bloc/profile/profile.dart';
 
@@ -51,8 +52,8 @@ class UserInfo extends StatelessWidget {
                                         fit: BoxFit.cover),
                                   ),
                                 ),
-                            imageUrl:
-                                "http://192.168.0.159:8080/book/download/${user.avatar}",
+                            imageUrl: globals.baseUrlApi +
+                                "book/download/${user.avatar}",
                             placeholder: (context, url) =>
                                 const CircularProgressIndicator(),
                             errorWidget: (context, url, error) => const Icon(
