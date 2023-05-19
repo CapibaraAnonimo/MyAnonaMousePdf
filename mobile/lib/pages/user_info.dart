@@ -5,13 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
+import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_bloc.dart';
+import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_event.dart';
+import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_state.dart';
+import 'package:newmyanonamousepdf/pages/books.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/util/globals.dart' as globals;
 
 import '../bloc/profile/profile.dart';
 
-class UserInfo extends StatelessWidget {
+class UserInfo extends StatefulWidget {
   const UserInfo({super.key});
+
+  @override
+  State<UserInfo> createState() => UserInfoState();
+}
+
+class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
+  late TabController _controller;
+
+  @override
+  void initState() {
+    _controller = TabController(length: 2, vsync: this);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +79,10 @@ class UserInfo extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                             httpHeaders: {
-                              "Authorization": "Basic $user.token",
-                              "Content-Type": "application/json",
-                              "Accept": "application/json",
+                              "Authorization":
+                                  "Bearer " + user.token.toString(),
+                              //"Content-Type": "application/json",
+                              //"Accept": "application/json",
                             }),
                       ),
                       Column(
@@ -94,39 +112,53 @@ class UserInfo extends StatelessWidget {
                       )
                     ],
                   ),
-                  /*Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      state.user.userName,
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      state.user.fullName,
-                      style: Theme.of(context).textTheme.bodyText1,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      state.user.id,
-                      style: Theme.of(context).textTheme.bodyText2,
-                    ),
-                  ),*/
-                  const DefaultTabController(
+                  SizedBox(
+                    height: 50,
+                    child: /*DefaultTabController(
                       length: 2,
-                      child: TabBar(
-                        tabs: [
-                          Tab(
-                            icon: Icon(Icons.book),
+                      child: */Scaffold(
+                        appBar: AppBar(
+                          bottom: TabBar(
+                            controller: _controller,
+                            tabs: const [
+                              Tab(
+                                icon: Icon(Icons.book),
+                              ),
+                              Tab(icon: Icon(Icons.bookmark)),
+                            ],
                           ),
-                          Tab(
-                            icon: Icon(Icons.bookmark),
-                          )
-                        ],
-                      ))
+                        ),
+                        body: SizedBox(
+                          height: 70,
+                          child: TabBarView(controller: _controller, children: [
+                            const Text("My Books"),
+                            BlocProvider<BookmarkListBloc>(
+                              create: (context) =>
+                                  BookmarkListBloc()..add(LoadBookmarks()),
+                              child: BlocBuilder<BookmarkListBloc,
+                                  BookmarkListState>(
+                                builder: (context, state) {
+                                  if (state is BookmarksLoading) {
+                                    return const CircularProgressIndicator();
+                                  } else if (state is BookmarksSuccess) {
+                                    return ListView.builder(
+                                      itemCount: state.books.length,
+                                      itemBuilder: (context, index) {
+                                        print(state.books.length);
+                                        return Text("Books");
+                                        Cards(book: state.books[index]);
+                                      },
+                                    );
+                                  }
+                                  return const CircularProgressIndicator();
+                                },
+                              ),
+                            ),
+                          ]),
+                        ),
+                      ),
+                    /*),*/
+                  ),
                 ],
               );
             } else if (state is ProfileErrorState) {

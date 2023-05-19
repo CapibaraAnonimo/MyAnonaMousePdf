@@ -405,9 +405,9 @@ class _BodyState extends State<ScreenWidget> {
                           errorWidget: (context, url, error) =>
                               Icon(Icons.error),
                           httpHeaders: {
-                            "Authorization": "Basic $user.token",
-                            "Content-Type": "application/json",
-                            "Accept": "application/json",
+                            "Authorization": "Bearer " + user!.token.toString(),
+                            //"Content-Type": "application/json",
+                            //"Accept": "application/json",
                           }),
                       /*const CircleAvatar(
                         radius: 48,
