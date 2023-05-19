@@ -25,6 +25,27 @@ class BookRepository {
     }
   }
 
+  Future<List<dynamic>> getBookmarks(
+      String token, String refreshToken) async {
+    try {
+      final response = await _myanonamousepdfApiClient.getAuth(
+          'bookmarks', token, refreshToken);
+      print("Reponse: " + response.toString());
+      print("Body: " + response.body.toString());
+      print("Type: " + response.body.runtimeType.toString());
+      print("Type: " + jsonDecode(response.body).runtimeType.toString());
+      print("Content: " + jsonDecode(response.body).toString());    
+
+      if (response.statusCode == 404) {
+        return [];
+      } 
+
+      return jsonDecode(response.body);
+    } on AuthenticationException {
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> getBookById(
       String id, String token, String refreshToken) async {
     try {
