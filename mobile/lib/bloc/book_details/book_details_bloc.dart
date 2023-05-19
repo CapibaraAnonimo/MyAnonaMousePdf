@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:myanonamousepdf_api/src/myanonamousepdf_api_client.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:newmyanonamousepdf/bloc/book_details/book_details.dart';
@@ -26,6 +27,8 @@ class BookDetailsBloc extends Bloc<BookDetailsEvent, BookDetailsState> {
       } else {
         emit(BookDetailsFailure(error: 'Something very weird just happened'));
       }
+    } on AuthenticationException catch (e) {
+      emit(AuthenticationError(error: e.toString()));
     } on Exception catch (e) {
       emit(BookDetailsFailure(error: e.toString()));
     }
@@ -43,6 +46,8 @@ class BookDetailsBloc extends Bloc<BookDetailsEvent, BookDetailsState> {
       } else {
         emit(BookDetailsFailure(error: 'Something very weird just happened'));
       }
+    } on AuthenticationException catch (e) {
+      emit(AuthenticationError(error: e.toString()));
     } on Exception catch (e) {
       emit(BookDetailsFailure(error: e.toString()));
     }

@@ -20,6 +20,7 @@ import 'package:newmyanonamousepdf/service/category_service.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:path/path.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
+import '../util/globals.dart' as globals;
 
 class BookListPage extends StatelessWidget {
   BuildContext context;
@@ -397,8 +398,8 @@ class _BodyState extends State<ScreenWidget> {
                                       image: imageProvider, fit: BoxFit.cover),
                                 ),
                               ),
-                          imageUrl:
-                              "http://192.168.0.159:8080/book/download/${user!.avatar}",
+                          imageUrl: globals.baseUrlApi +
+                              "book/download/${user!.avatar}",
                           placeholder: (context, url) =>
                               CircularProgressIndicator(),
                           errorWidget: (context, url, error) =>
@@ -431,7 +432,6 @@ class _BodyState extends State<ScreenWidget> {
               final _bookBloc = BlocProvider.of<BookListBloc>(context);
 
               if (state is BookListSuccess) {
-                print('Se entra en success');
                 currentPage = state.currentPage;
                 maxPage = state.maxPages;
                 books.addAll(state.books);

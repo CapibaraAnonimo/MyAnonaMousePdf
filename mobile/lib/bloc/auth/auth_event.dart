@@ -23,3 +23,12 @@ class UserLoggedIn extends AuthenticationEvent {
 
 // Fired when the user has logged out
 class UserLoggedOut extends AuthenticationEvent {}
+
+class AuthenticationError extends AuthenticationEvent {
+  final String error;
+
+  AuthenticationError({required this.error});
+
+  @override
+  List<Object> get props => [error];
+}

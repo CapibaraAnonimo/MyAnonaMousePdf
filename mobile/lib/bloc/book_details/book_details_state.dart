@@ -28,3 +28,12 @@ class BookDetailsFailure extends BookDetailsState {
   @override
   List<Object> get props => [error];
 }
+
+class AuthenticationError extends BookDetailsState {
+  final String error;
+
+  AuthenticationError({required this.error});
+
+  @override
+  List<Object> get props => [error];
+}

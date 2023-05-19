@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
+import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
+import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart' as auth;
 import 'package:newmyanonamousepdf/bloc/book_details/book_details.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark/bookmark_bloc.dart';
+import 'package:newmyanonamousepdf/main.dart';
+import 'package:newmyanonamousepdf/pages/login_page.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
+import 'package:newmyanonamousepdf/util/goToMainWithAuthError.dart';
 
 class BookDetails extends StatelessWidget {
   String id;
@@ -44,6 +49,7 @@ class BookDetailsBody extends StatelessWidget {
           final _bookBloc = BlocProvider.of<BookDetailsBloc>(context);
           if (state is BookDetailsInitial) {
             _bookBloc.add(GetData(id: id));
+            return const CircularProgressIndicator();
           } else if (state is BookDetailsLoading) {
             return const CircularProgressIndicator();
           } else if (state is BookDetailsSuccess) {
@@ -81,8 +87,8 @@ class BookDetailsBody extends StatelessWidget {
                           } else if (state is BookmarkLoading) {
                             return IconButton(
                               onPressed: () => {},
-                              icon: const Icon(Icons.circle,
-                                  color: Colors.amber),
+                              icon:
+                                  const Icon(Icons.circle, color: Colors.amber),
                             );
                           } else if (state is BookmarkSuccess) {
                             if (state.bookmarkCurrentState) {
@@ -154,9 +160,24 @@ class BookDetailsBody extends StatelessWidget {
                 ),
               ),
             );
-          } else if (state is BookDetailsFailure) {}
+          } else if (state is BookDetailsFailure) {
+          } else if (state is AuthenticationError) {
+            /*WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => MyAnonaMousePdf(error: state.error)),
+                (route) => false,
+              );
+            });
+            context
+                .read<AuthenticationBloc>()
+                .add(auth.AuthenticationError(error: state.error));*/
+            goToMainWithAuthError(context, state.error);
+          }
+          print("Current State: " + state.toString());
           return const Text(
-            'No deberia de llegar a aqui',
+            'No debería de llegar al final de book_details',
             style: TextStyle(fontSize: 40),
           );
         }));
