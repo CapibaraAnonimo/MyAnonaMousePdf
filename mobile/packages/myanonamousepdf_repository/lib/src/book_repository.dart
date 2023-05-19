@@ -34,12 +34,11 @@ class BookRepository {
       print("Body: " + response.body.toString());
       print("Type: " + response.body.runtimeType.toString());
       print("Type: " + jsonDecode(response.body).runtimeType.toString());
-      print("Content: " + jsonDecode(response.body).toString());
+      print("Content: " + jsonDecode(response.body).toString());    
 
-
-      for (var elment in jsonDecode(response.body)) {
-        
-      }      
+      if (response.statusCode == 404) {
+        return [];
+      } 
 
       return jsonDecode(response.body);
     } on AuthenticationException {

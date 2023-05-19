@@ -112,15 +112,15 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                       )
                     ],
                   ),
-                  SizedBox(
-                    height: 50,
-                    child: /*DefaultTabController(
+                  Expanded(
+                    child: DefaultTabController(
                       length: 2,
-                      child: */Scaffold(
+                      child: Scaffold(
                         appBar: AppBar(
-                          bottom: TabBar(
-                            controller: _controller,
-                            tabs: const [
+                          automaticallyImplyLeading: false,
+                          title: const TabBar(
+                            //controller: _controller,
+                            tabs: [
                               Tab(
                                 icon: Icon(Icons.book),
                               ),
@@ -128,10 +128,15 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                             ],
                           ),
                         ),
-                        body: SizedBox(
-                          height: 70,
-                          child: TabBarView(controller: _controller, children: [
-                            const Text("My Books"),
+                        body: TabBarView(
+                          //controller: _controller,
+                          children: [
+                            const Center(
+                                child: Text(
+                              'My Books',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 30),
+                            )),
                             BlocProvider<BookmarkListBloc>(
                               create: (context) =>
                                   BookmarkListBloc()..add(LoadBookmarks()),
@@ -141,12 +146,19 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                   if (state is BookmarksLoading) {
                                     return const CircularProgressIndicator();
                                   } else if (state is BookmarksSuccess) {
+                                    if (state.books.isEmpty) {
+                                      return const Center(
+                                          child: Text(
+                                        'You have no Bookmarks\nGo find some cool books',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 30),
+                                      ));
+                                    }
                                     return ListView.builder(
                                       itemCount: state.books.length,
                                       itemBuilder: (context, index) {
                                         print(state.books.length);
-                                        return Text("Books");
-                                        Cards(book: state.books[index]);
+                                        return Cards(book: state.books[index]);
                                       },
                                     );
                                   }
@@ -154,10 +166,10 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                 },
                               ),
                             ),
-                          ]),
+                          ],
                         ),
                       ),
-                    /*),*/
+                    ),
                   ),
                 ],
               );
