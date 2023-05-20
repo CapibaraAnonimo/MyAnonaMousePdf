@@ -136,6 +136,11 @@ public class UserController {
         return UserResponse.fromUser(userService.enable(UUID.fromString(id)));
     }
 
+    @GetMapping("/me/books")
+    public List<BookResponse> getOwnBooks(@AuthenticationPrincipal User loggedUser) {
+        return userService.findOwnBooks(loggedUser.getId()).stream().map(BookResponse::of).toList();
+    }
+
     @GetMapping("/bookmarks")
     public List<BookResponse> getBookmarks(@AuthenticationPrincipal User loggedUser) {
         return userService.findBookmarks(loggedUser.getId()).stream().map(BookResponse::of).toList();

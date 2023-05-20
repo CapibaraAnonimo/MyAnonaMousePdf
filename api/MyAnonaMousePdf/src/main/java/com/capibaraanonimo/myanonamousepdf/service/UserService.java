@@ -101,6 +101,17 @@ public class UserService {
         return user;
     }
 
+    public List<Book> findOwnBooks(UUID id) {
+        Optional<User> user = userRepository.findUserById(id);
+        if (user.isEmpty()) {
+            throw new SingleEntityNotFoundException(id, User.class);
+        }
+        List<Book> books = user.get().getUploadedBooks();
+        if (books.isEmpty())
+            throw new ListEntityNotFoundException(Book.class);
+        return books;
+    }
+
     public List<Book> findBookmarks(UUID id) {
         Optional<User> user = userRepository.findUserById(id);
         if (user.isEmpty()) {

@@ -15,6 +15,7 @@ abstract class BookService {
   void upload(BookUpload book, File file);
   Future<bool> isBookmarked(String id);
   Future<bool> changeBookmark(String id);
+  Future<List<Book>> getOwnBooks();
   Future<List<Book>> getBookmarks();
 }
 
@@ -98,6 +99,29 @@ class JwtBookService extends BookService {
         JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
     return await _bookRepository.changeBookmark(
         id, user.token, user.refreshToken);
+  }
+
+  @override
+  Future<List<Book>> getOwnBooks() async {
+    try {
+      JwtUserResponse user =
+          JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+      List<dynamic> list =
+          await _bookRepository.getOwnBooks(user.token, user.refreshToken);
+
+      List<Book> bookList = [];
+      print(list.length);
+      for (var book in list) {
+        print(book['uploader']['createdAt']);
+        print(DateTime.now());
+        bookList.add(Book.fromJson(book));
+        print(bookList);
+      }
+      print('devuelvo la lista de libros ya hecha');
+      return bookList;
+    } on AuthenticationException {
+      rethrow;
+    }
   }
 
   @override

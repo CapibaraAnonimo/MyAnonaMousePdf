@@ -8,9 +8,14 @@ import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_bloc.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_event.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_state.dart';
+import 'package:newmyanonamousepdf/bloc/ownBooks/own_books_bloc.dart';
+import 'package:newmyanonamousepdf/bloc/ownBooks/own_books_event.dart';
+import 'package:newmyanonamousepdf/bloc/ownBooks/own_books_state.dart'
+    as ownBooksState;
 import 'package:newmyanonamousepdf/pages/books.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/util/globals.dart' as globals;
+import 'package:newmyanonamousepdf/util/goToMainWithAuthError.dart';
 
 import '../bloc/profile/profile.dart';
 
@@ -131,12 +136,39 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                         body: TabBarView(
                           //controller: _controller,
                           children: [
-                            const Center(
-                                child: Text(
-                              'My Books',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 30),
-                            )),
+                            BlocProvider<OwnBooksBloc>(
+                              create: (context) =>
+                                  OwnBooksBloc()..add(LoadOwnBooks()),
+                              child: BlocBuilder<OwnBooksBloc,
+                                  ownBooksState.OwnBooksState>(
+                                builder: (context, state) {
+                                  if (state is ownBooksState.OwnBooksLoading) {
+                                    return const CircularProgressIndicator();
+                                  } else if (state
+                                      is ownBooksState.OwnBooksSuccess) {
+                                    if (state.books.isEmpty) {
+                                      return const Center(
+                                          child: Text(
+                                        'You have no Bookmarks\nGo find some cool books',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 30),
+                                      ));
+                                    }
+                                    return ListView.builder(
+                                      itemCount: state.books.length,
+                                      itemBuilder: (context, index) {
+                                        print(state.books.length);
+                                        return Cards(book: state.books[index]);
+                                      },
+                                    );
+                                  } else if (state is ownBooksState
+                                      .AuthenticationErrorState) {
+                                    goToMainWithAuthError(context, state.error);
+                                  }
+                                  return const CircularProgressIndicator();
+                                },
+                              ),
+                            ),
                             BlocProvider<BookmarkListBloc>(
                               create: (context) =>
                                   BookmarkListBloc()..add(LoadBookmarks()),
@@ -161,6 +193,9 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                         return Cards(book: state.books[index]);
                                       },
                                     );
+                                  } else if (state
+                                      is AuthenticationErrorState) {
+                                    goToMainWithAuthError(context, state.error);
                                   }
                                   return const CircularProgressIndicator();
                                 },
