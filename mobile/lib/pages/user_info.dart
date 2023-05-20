@@ -11,6 +11,7 @@ import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_state.dart';
 import 'package:newmyanonamousepdf/pages/books.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/util/globals.dart' as globals;
+import 'package:newmyanonamousepdf/util/goToMainWithAuthError.dart';
 
 import '../bloc/profile/profile.dart';
 
@@ -161,6 +162,9 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                         return Cards(book: state.books[index]);
                                       },
                                     );
+                                  } else if (state
+                                      is AuthenticationErrorState) {
+                                    goToMainWithAuthError(context, state.error);
                                   }
                                   return const CircularProgressIndicator();
                                 },
