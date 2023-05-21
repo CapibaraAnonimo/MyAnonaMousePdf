@@ -23,6 +23,11 @@ class BookmarkListBloc extends Bloc<BookmarkListEvent, BookmarkListState> {
 
       List<Book> list = await _bookService.getBookmarks();
 
+      print(list.length);
+      for (var item in list) {
+        print(item.title);
+      }
+
       emit(BookmarksSuccess(books: list));
     } on AuthenticationException catch (e) {
       emit(AuthenticationErrorState(error: e.toString()));

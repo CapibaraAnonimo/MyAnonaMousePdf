@@ -175,6 +175,9 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                               child: BlocBuilder<BookmarkListBloc,
                                   BookmarkListState>(
                                 builder: (context, state) {
+                                  final _bookmarksBloc =
+                                      BlocProvider.of<BookmarkListBloc>(
+                                          context);
                                   if (state is BookmarksLoading) {
                                     return const CircularProgressIndicator();
                                   } else if (state is BookmarksSuccess) {
@@ -186,12 +189,18 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                             color: Colors.white, fontSize: 30),
                                       ));
                                     }
-                                    return ListView.builder(
-                                      itemCount: state.books.length,
-                                      itemBuilder: (context, index) {
-                                        print(state.books.length);
-                                        return Cards(book: state.books[index]);
+                                    return RefreshIndicator(
+                                      onRefresh: () async {
+                                        _bookmarksBloc.add(LoadBookmarks());
                                       },
+                                      child: ListView.builder(
+                                        itemCount: state.books.length,
+                                        itemBuilder: (context, index) {
+                                          print(state.books.length);
+                                          return Cards(
+                                              book: state.books[index]);
+                                        },
+                                      ),
                                     );
                                   } else if (state
                                       is AuthenticationErrorState) {
