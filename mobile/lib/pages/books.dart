@@ -435,24 +435,30 @@ class _BodyState extends State<ScreenWidget> {
                 currentPage = state.currentPage;
                 maxPage = state.maxPages;
                 books.addAll(state.books);
-                return ListView.builder(
-                  /*children: [
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    books = [];
+                    _bookBloc.add(Loading(page: 0));
+                  },
+                  child: ListView.builder(
+                    /*children: [
                 ...booksWidget,
               ],*/
-                  controller: _scrollController,
-                  itemCount:
-                      books.length + 1, // agregue 1 para cargar más elementos
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index < books.length) {
-                      return Cards(book: books[index]);
-                    } else {
-                      // cargue más elementos
-                      if (currentPage < maxPage - 1) {
-                        _bookBloc.add(Loading(page: currentPage + 1));
-                        return CircularProgressIndicator();
+                    controller: _scrollController,
+                    itemCount:
+                        books.length + 1, // agregue 1 para cargar más elementos
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index < books.length) {
+                        return Cards(book: books[index]);
+                      } else {
+                        // cargue más elementos
+                        if (currentPage < maxPage - 1) {
+                          _bookBloc.add(Loading(page: currentPage + 1));
+                          return CircularProgressIndicator();
+                        }
                       }
-                    }
-                  },
+                    },
+                  ),
                 );
               } else if (state is BookListInitial) {
                 _bookBloc.add(Loading(page: 0));
