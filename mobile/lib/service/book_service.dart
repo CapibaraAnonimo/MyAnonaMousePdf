@@ -9,7 +9,7 @@ import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart'
     as repo;
 
 abstract class BookService {
-  Future<List<Book>> getAllBooks(int page);
+  Future<List<Book>> getAllBooks(int page, String search);
   Future<Book> getBookById(String id);
   void download(String name);
   void upload(BookUpload book, File file);
@@ -26,16 +26,19 @@ class JwtBookService extends BookService {
   JwtBookService() {}
 
   @override
-  Future<List<Book>> getAllBooks(int page) async {
+  Future<List<Book>> getAllBooks(int page, String search) async {
+    print('Page en el service: ' + page.toString());
     try {
       JwtUserResponse user =
           JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
       Map<String, dynamic> response = await _bookRepository.getAllBooks(
-          page, user.token, user.refreshToken);
+          page, search, user.token, user.refreshToken);
       print(
           'guardo las cosas antes de convertirlo y guardar datos importantes');
+      print(response);
+      print(response['content']);
 
-      List<dynamic> list = response['content'];
+      List<dynamic> list = response['content']?? [];
       box.write('currentPage', response['number']);
       box.write('maxPages', response['totalPages']);
       List<Book> bookList = [];

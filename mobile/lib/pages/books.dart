@@ -70,6 +70,7 @@ class _BodyState extends State<ScreenWidget> {
     final categoryService = JwtCategoryService();
     final bookService = JwtBookService();
     final _authBloc = BlocProvider.of<AuthenticationBloc>(context);
+    final TextEditingController searchController = TextEditingController();
 
     uploadFile() async {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -424,6 +425,41 @@ class _BodyState extends State<ScreenWidget> {
             addBook(),
             log(_authBloc),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(55),
+            child: ListTile(
+              leading: const Icon(Icons.search, color: Colors.white),
+              title: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search a book',
+                  hintStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                  border: InputBorder.none,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.white),
+                    onPressed: () {
+                      searchController.clear();
+                    },
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                onSubmitted: (text) {
+                  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+                      GlobalKey<RefreshIndicatorState>();
+                  books = [];
+                  //currentPage = 0;
+                  //maxPage = 0;
+                  _refreshIndicatorKey.currentState?.show();
+                  /*context
+                      .read<BookListBloc>()
+                      .add(Loading(page: 0, search: text));*/
+                },
+              ),
+            ),
+          ),
         ),
         body: BlocProvider<BookListBloc>(
           create: (context) => BookListBloc(authService),
@@ -431,37 +467,78 @@ class _BodyState extends State<ScreenWidget> {
             builder: (context, state) {
               final _bookBloc = BlocProvider.of<BookListBloc>(context);
 
-              if (state is BookListSuccess) {
-                currentPage = state.currentPage;
-                maxPage = state.maxPages;
+              if (state is BookListInitial) {
+                _bookBloc.add(Loading(page: 0, search: searchController.text));
+              } else if (state is BookListLoading) {
+                return Center(
+                  child: Text("cargando"),
+                );
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is BookListSuccess) {
                 books.addAll(state.books);
+
+                if (state.currentPage == 0 && state.maxPages == 0) {
+                        books = [];
+                        _bookBloc.add(Loading(
+                            page: state.currentPage,
+                            search: searchController.text));
+                      }
                 return RefreshIndicator(
+                  edgeOffset: 115,
+                  displacement: 10,
                   onRefresh: () async {
                     books = [];
-                    _bookBloc.add(Loading(page: 0));
+                    _bookBloc
+                        .add(Loading(page: 0, search: searchController.text));
                   },
                   child: ListView.builder(
-                    /*children: [
-                ...booksWidget,
-              ],*/
                     controller: _scrollController,
                     itemCount:
                         books.length + 1, // agregue 1 para cargar más elementos
                     itemBuilder: (BuildContext context, int index) {
+                      currentPage = state.currentPage;
+                      maxPage = state.maxPages;
+                      if (books.length == 0) {
+                        return const Center(
+                          child: Text('No books...',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 25)),
+                        );
+                      }
                       if (index < books.length) {
                         return Cards(book: books[index]);
                       } else {
                         // cargue más elementos
-                        if (currentPage < maxPage - 1) {
-                          _bookBloc.add(Loading(page: currentPage + 1));
-                          return CircularProgressIndicator();
+                        if (state.currentPage < state.maxPages - 1) {
+                          _bookBloc.add(Loading(
+                              page: state.currentPage + 1,
+                              search: searchController.text));
+                          return Center(
+                            child: Text("Lista"),
+                          );
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
+                        /*if (currentPage == 0 && maxPage == 0) {
+                          _bookBloc.add(Loading(
+                              page: currentPage,
+                              search: searchController.text));
+                        }
+                        // cargue más elementos
+                        if (currentPage < maxPage - 1) {
+                          _bookBloc.add(Loading(
+                              page: currentPage + 1,
+                              search: searchController.text));
+                          return Center(
+                            child: Text("Lista"),
+                          );
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }*/
                       }
                     },
                   ),
                 );
-              } else if (state is BookListInitial) {
-                _bookBloc.add(Loading(page: 0));
               }
               return const Center(
                 child: CircularProgressIndicator(),
