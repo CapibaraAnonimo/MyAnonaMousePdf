@@ -70,6 +70,7 @@ class _BodyState extends State<ScreenWidget> {
     final categoryService = JwtCategoryService();
     final bookService = JwtBookService();
     final _authBloc = BlocProvider.of<AuthenticationBloc>(context);
+    final TextEditingController searchController = TextEditingController();
 
     uploadFile() async {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -359,116 +360,193 @@ class _BodyState extends State<ScreenWidget> {
       }
     }
 
-    return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 20, 20, 20),
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          flexibleSpace: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              child: Container(
-                color: Colors.transparent,
+    return BlocProvider<BookListBloc>(
+        create: (context) => BookListBloc(authService),
+        child:
+            BlocBuilder<BookListBloc, BookListState>(builder: (context, state) {
+          final _bookBloc = BlocProvider.of<BookListBloc>(context);
+          return Scaffold(
+            backgroundColor: const Color.fromARGB(255, 20, 20, 20),
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
               ),
-            ),
-          ),
-          title: Row(children: [
-            user != null
-                ? /*IconButton(
+              title: Row(children: [
+                user != null
+                    ? /*IconButton(
                     onPressed: () {},
                     icon: Image.network(
                         'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg'),
                   )*/
-                SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const UserInfo()));
-                      },
-                      child: CachedNetworkImage(
-                          imageBuilder: (context, imageProvider) => Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      image: imageProvider, fit: BoxFit.cover),
-                                ),
-                              ),
-                          imageUrl: globals.baseUrlApi +
-                              "book/download/${user!.avatar}",
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error),
-                          httpHeaders: {
-                            "Authorization": "Bearer " + user!.token.toString(),
-                            //"Content-Type": "application/json",
-                            //"Accept": "application/json",
-                          }),
-                      /*const CircleAvatar(
+                    SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const UserInfo()));
+                          },
+                          child: CachedNetworkImage(
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover),
+                                    ),
+                                  ),
+                              imageUrl: globals.baseUrlApi +
+                                  "book/download/${user!.avatar}",
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                              httpHeaders: {
+                                "Authorization":
+                                    "Bearer " + user!.token.toString(),
+                                //"Content-Type": "application/json",
+                                //"Accept": "application/json",
+                              }),
+                          /*const CircleAvatar(
                         radius: 48,
                         backgroundImage: NetworkImage(
                             'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg'),
                       ),*/
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                const SizedBox(width: 10),
+                const Text('Books')
+              ]),
+              actions: [
+                addBook(),
+                log(_authBloc),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(55),
+                child: ListTile(
+                  leading: const Icon(Icons.search, color: Colors.white),
+                  title: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search a book',
+                      hintStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                      border: InputBorder.none,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.white),
+                        onPressed: () {
+                          searchController.clear();
+                        },
+                      ),
                     ),
-                  )
-                : const SizedBox.shrink(),
-            const SizedBox(width: 10),
-            const Text('Books')
-          ]),
-          actions: [
-            addBook(),
-            log(_authBloc),
-          ],
-        ),
-        body: BlocProvider<BookListBloc>(
-          create: (context) => BookListBloc(authService),
-          child: BlocBuilder<BookListBloc, BookListState>(
-            builder: (context, state) {
-              final _bookBloc = BlocProvider.of<BookListBloc>(context);
-
-              if (state is BookListSuccess) {
-                currentPage = state.currentPage;
-                maxPage = state.maxPages;
-                books.addAll(state.books);
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    books = [];
-                    _bookBloc.add(Loading(page: 0));
-                  },
-                  child: ListView.builder(
-                    /*children: [
-                ...booksWidget,
-              ],*/
-                    controller: _scrollController,
-                    itemCount:
-                        books.length + 1, // agregue 1 para cargar más elementos
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index < books.length) {
-                        return Cards(book: books[index]);
-                      } else {
-                        // cargue más elementos
-                        if (currentPage < maxPage - 1) {
-                          _bookBloc.add(Loading(page: currentPage + 1));
-                          return CircularProgressIndicator();
-                        }
-                      }
+                    style: const TextStyle(color: Colors.white),
+                    onSubmitted: (text) {
+                      final GlobalKey<RefreshIndicatorState>
+                          _refreshIndicatorKey =
+                          GlobalKey<RefreshIndicatorState>();
+                      books = [];
+                      //currentPage = 0;
+                      //maxPage = 0;
+                      _bookBloc.add(Loading(page: 0, search: text));
                     },
                   ),
+                ),
+              ),
+            ),
+            body: Builder(
+              builder: (BuildContext context) {
+                if (state is BookListInitial) {
+                  _bookBloc
+                      .add(Loading(page: 0, search: searchController.text));
+                } else if (state is BookListLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is BookListEmpty) {
+                  return Center(
+                      child: Text(
+                    'Books not found with ${searchController.text}',
+                    style: const TextStyle(color: Colors.white, fontSize: 30),
+                    softWrap: true,
+                    //maxLines: 2,
+                    //overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ));
+                } else if (state is BookListSuccess) {
+                  books.addAll(state.books);
+
+                  if (state.currentPage == 0 && state.maxPages == 0) {
+                    books = [];
+                    _bookBloc.add(Loading(
+                        page: state.currentPage,
+                        search: searchController.text));
+                  }
+                  return RefreshIndicator(
+                    edgeOffset: 115,
+                    displacement: 10,
+                    onRefresh: () async {
+                      books = [];
+                      _bookBloc
+                          .add(Loading(page: 0, search: searchController.text));
+                    },
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: books.length +
+                          1, // agregue 1 para cargar más elementos
+                      itemBuilder: (BuildContext context, int index) {
+                        currentPage = state.currentPage;
+                        maxPage = state.maxPages;
+                        if (index < books.length) {
+                          return Cards(book: books[index]);
+                        } else {
+                          // cargue más elementos
+                          if (state.currentPage < state.maxPages - 1) {
+                            _bookBloc.add(Loading(
+                                page: state.currentPage + 1,
+                                search: searchController.text));
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          /*if (currentPage == 0 && maxPage == 0) {
+                          _bookBloc.add(Loading(
+                              page: currentPage,
+                              search: searchController.text));
+                        }
+                        // cargue más elementos
+                        if (currentPage < maxPage - 1) {
+                          _bookBloc.add(Loading(
+                              page: currentPage + 1,
+                              search: searchController.text));
+                          return Center(
+                            child: Text("Lista"),
+                          );
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }*/
+                        }
+                      },
+                    ),
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
                 );
-              } else if (state is BookListInitial) {
-                _bookBloc.add(Loading(page: 0));
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            },
-          ),
-        ));
+              },
+            ),
+          );
+        }));
   }
 
   @override

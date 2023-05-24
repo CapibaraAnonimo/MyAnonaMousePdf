@@ -48,7 +48,7 @@ public class BookSpecification implements Specification<Book> {
                     root.<String>get(searchCriteria.getKey()), searchCriteria.getValue().toString());
         } else if (searchCriteria.getOperator().equalsIgnoreCase(":")) {
             // TODO tratar tipos de datos "complicados" como booleanos HECHO, ¿listas?, ...
-            if(root.get(searchCriteria.getKey()).getJavaType() == String.class) {
+            if (root.get(searchCriteria.getKey()).getJavaType() == String.class) {
                 return criteriaBuilder.like(
                         root.get(searchCriteria.getKey()), "%" + searchCriteria.getValue().toString() + "%"
                 );
@@ -57,7 +57,7 @@ public class BookSpecification implements Specification<Book> {
             else if (root.get(searchCriteria.getKey()).getJavaType().toString().equalsIgnoreCase("boolean")) {
                 boolean value = searchCriteria.getValue().toString().equalsIgnoreCase("true") ? true : false; // Se podría adaptar a que se pase 0 o 1 en el query param
                 return criteriaBuilder.equal(root.get(searchCriteria.getKey()), value);
-            }else {
+            } else {
                 return criteriaBuilder.equal(root.<String>get(searchCriteria.getKey()), searchCriteria.getValue());
             }
         }

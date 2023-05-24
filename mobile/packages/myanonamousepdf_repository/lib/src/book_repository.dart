@@ -13,10 +13,21 @@ class BookRepository {
   final MyanonamousepdfApiClient _myanonamousepdfApiClient;
 
   Future<Map<String, dynamic>> getAllBooks(
-      int page, String token, String refreshToken) async {
+      int page, String search, String token, String refreshToken) async {
+    print('Page in repository: ' + page.toString());
     try {
       final response = await _myanonamousepdfApiClient.getAuth(
-          'book?page=' + page.toString(), token, refreshToken);
+          'book?page=' +
+              page.toString() +
+              '&search=title:' +
+              search /* +
+              ',author:' +
+              search +
+              ',description:' +
+              search*/
+          ,
+          token,
+          refreshToken);
 
       print('devuelvo el Json');
       return jsonDecode(response.body);
@@ -25,15 +36,14 @@ class BookRepository {
     }
   }
 
-  Future<List<dynamic>> getOwnBooks(
-      String token, String refreshToken) async {
+  Future<List<dynamic>> getOwnBooks(String token, String refreshToken) async {
     try {
       final response = await _myanonamousepdfApiClient.getAuth(
-          'me/books', token, refreshToken);  
+          'me/books', token, refreshToken);
 
       if (response.statusCode == 404) {
         return [];
-      } 
+      }
 
       return jsonDecode(response.body);
     } on AuthenticationException {
@@ -41,15 +51,14 @@ class BookRepository {
     }
   }
 
-  Future<List<dynamic>> getBookmarks(
-      String token, String refreshToken) async {
+  Future<List<dynamic>> getBookmarks(String token, String refreshToken) async {
     try {
       final response = await _myanonamousepdfApiClient.getAuth(
-          'bookmarks', token, refreshToken);  
+          'bookmarks', token, refreshToken);
 
       if (response.statusCode == 404) {
         return [];
-      } 
+      }
 
       return jsonDecode(response.body);
     } on AuthenticationException {

@@ -22,25 +22,35 @@ class BookListBloc extends Bloc<BookListEvent, BookListState> {
     Loading event,
     Emitter<BookListState> emit,
   ) async {
-    print('Se llega al bloc de los librossssssssssssssssssssss');
     final bookService = JwtBookService();
     final categoryService = JwtCategoryService();
 
     emit(BookListLoading());
     try {
       final currentUser = await _authenticationService.getCurrentUser();
-      final books = await bookService.getAllBooks(event.page);
+      print('Page in bloc: ' + event.page.toString());
+      final books =
+          await bookService.getAllBooks(event.page, event.search ?? '');
       final currentPage = await _authenticationService.getCurrentPage();
       final maxPages = await _authenticationService.getMaxPages();
-      final List<BookCategory> categories = await categoryService.getCategories();
+      final List<BookCategory> categories =
+          await categoryService.getCategories();
 
       print('Se ha hecho la llamada y se tengo las cosas de vuelta');
-      print(books[0].title);
-      print(categories[0].name);
+      print(books.length);
+      print(books);
 
       if (books.length >= 0) {
-        emit(BookListSuccess(
-            books: books, currentPage: currentPage!, maxPages: maxPages!, categories: categories));
+        print('Justo antes del bookListSuccess');
+        if (books.isEmpty) {
+          emit(BookListEmpty(input: event.search!));
+        } else {
+          emit(BookListSuccess(
+              books: books,
+              currentPage: currentPage!,
+              maxPages: maxPages!,
+              categories: categories));
+        }
       }
     } on Exception catch (e) {
       emit(
