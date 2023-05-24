@@ -19,10 +19,22 @@ class BookListSuccess extends BookListState {
   final List<BookCategory> categories;
 
   BookListSuccess(
-      {required this.books, required this.currentPage, required this.maxPages, required this.categories});
+      {required this.books,
+      required this.currentPage,
+      required this.maxPages,
+      required this.categories});
 
   @override
   List<Object> get props => [books, currentPage, maxPages];
+}
+
+class BookListEmpty extends BookListState {
+  final String input;
+
+  BookListEmpty({required this.input});
+
+  @override
+  List<Object> get props => [input];
 }
 
 class BookListFailure extends BookListState {
