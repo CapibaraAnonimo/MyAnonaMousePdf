@@ -38,16 +38,19 @@ class BookListBloc extends Bloc<BookListEvent, BookListState> {
 
       print('Se ha hecho la llamada y se tengo las cosas de vuelta');
       print(books.length);
-      print(books[0].title);
-      print(categories[0].name);
+      print(books);
 
       if (books.length >= 0) {
         print('Justo antes del bookListSuccess');
-        emit(BookListSuccess(
-            books: books,
-            currentPage: currentPage!,
-            maxPages: maxPages!,
-            categories: categories));
+        if (books.isEmpty) {
+          emit(BookListEmpty(input: event.search!));
+        } else {
+          emit(BookListSuccess(
+              books: books,
+              currentPage: currentPage!,
+              maxPages: maxPages!,
+              categories: categories));
+        }
       }
     } on Exception catch (e) {
       emit(
