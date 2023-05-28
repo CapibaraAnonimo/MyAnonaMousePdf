@@ -409,20 +409,14 @@ class _BodyState extends State<ScreenWidget> {
                               imageUrl: globals.baseUrlApi +
                                   "book/download/${user!.avatar}",
                               placeholder: (context, url) =>
-                                  CircularProgressIndicator(),
+                                  const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
                                   Icon(Icons.error),
                               httpHeaders: {
-                                "Authorization":
-                                    "Bearer " + user!.token.toString(),
+                                "Authorization": "Bearer ${user!.token}",
                                 //"Content-Type": "application/json",
                                 //"Accept": "application/json",
                               }),
-                          /*const CircleAvatar(
-                        radius: 48,
-                        backgroundImage: NetworkImage(
-                            'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg'),
-                      ),*/
                         ),
                       )
                     : const SizedBox.shrink(),

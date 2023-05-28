@@ -58,7 +58,6 @@ public class BookController {
     @PostMapping(path = "/upload/json")
     @ResponseStatus(HttpStatus.CREATED)
     public UUID postBookJSon(@RequestBody @Valid CreateBook book, @AuthenticationPrincipal User loggedUser) {
-        System.out.println("Fresh User: " + loggedUser);
         return bookService.save(book, loggedUser);
     }
 

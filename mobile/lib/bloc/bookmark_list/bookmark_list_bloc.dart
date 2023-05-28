@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:newmyanonamousepdf/service/book_service.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:myanonamousepdf_api/src/myanonamousepdf_api_client.dart';
@@ -22,11 +21,6 @@ class BookmarkListBloc extends Bloc<BookmarkListEvent, BookmarkListState> {
       emit(BookmarksLoading());
 
       List<Book> list = await _bookService.getBookmarks();
-
-      print(list.length);
-      for (var item in list) {
-        print(item.title);
-      }
 
       emit(BookmarksSuccess(books: list));
     } on AuthenticationException catch (e) {

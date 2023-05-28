@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
@@ -277,6 +278,57 @@ class MyanonamousepdfApiClient {
         throw AuthenticationException("Your session has expired");
       }
       throw UploadException("There was an error uploading the book");
+    } on AuthenticationException {
+      rethrow;
+    }
+  }
+
+  Future<dynamic> uploadImage(
+      String url, File file, String token, String refreshTokens) async {
+    print(file.path);
+    print('MediaType: ' +
+        MediaType.parse(
+                lookupMimeType(file.path.split('.').last.toLowerCase())!)
+            .toString());
+
+    try {
+      Uri uri = Uri.parse(_baseUrlApi + url);
+      var request = http.MultipartRequest('PUT', uri);
+      request.files.add(await http.MultipartFile.fromPath('file', file.path,
+          contentType: MediaType.parse(
+              lookupMimeType(file.path.split('.').last.toLowerCase())!)));
+      request.headers["Authorization"] = "Bearer " + token;
+
+      var response = await request.send();
+      print(response.statusCode);
+
+      dynamic responseData =
+          json.decode((await http.Response.fromStream(response)).body);
+
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        await refreshToken();
+
+        String newToken = getToken();
+
+        uri = Uri.parse(_baseUrlApi + url);
+        var request = http.MultipartRequest('POST', uri);
+        request.files.add(await http.MultipartFile.fromPath('file', file.path,
+            contentType: MediaType.parse(
+                lookupMimeType(file.path.split('.').last.toLowerCase())!)));
+        request.headers["Authorization"] = "Bearer " + newToken;
+
+        var response = await request.send();
+        print(response.statusCode);
+
+        responseData =
+            json.decode((await http.Response.fromStream(response)).body);
+      }
+
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        throw AuthenticationException("Your session has expired");
+      }
+
+      return responseData;
     } on AuthenticationException {
       rethrow;
     }
