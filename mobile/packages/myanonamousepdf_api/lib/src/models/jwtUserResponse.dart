@@ -4,7 +4,7 @@ part 'jwtUserResponse.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.none)
 class JwtUserResponse {
-  const JwtUserResponse({
+  JwtUserResponse({
     required this.token,
     required this.refreshToken,
     required this.id,
@@ -17,10 +17,10 @@ class JwtUserResponse {
   factory JwtUserResponse.fromJson(Map<String, dynamic> json) =>
       _$JwtUserResponseFromJson(json);
 
-      Map<String, dynamic> toJson() => _$JwtUserResponseToJson(this);
+  Map<String, dynamic> toJson() => _$JwtUserResponseToJson(this);
 
-  final String token;
-  final String refreshToken;
+  String token;
+  String refreshToken;
   final String id;
   final String userName;
   final String fullName;

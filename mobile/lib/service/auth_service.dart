@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart' as api;
@@ -11,6 +12,7 @@ abstract class AuthenticationService {
   Future<void> signOut();
   Future<int?> getCurrentPage();
   Future<int?> getMaxPages();
+  Future<api.JwtUserResponse> changeAvatar(File file);
 }
 
 class JwtAuthenticationService extends AuthenticationService {
@@ -70,5 +72,24 @@ class JwtAuthenticationService extends AuthenticationService {
   @override
   Future<void> signOut() async {
     await box.remove("CurrentUser");
+  }
+
+  @override
+  Future<api.JwtUserResponse> changeAvatar(File file) async {
+    api.JwtUserResponse user =
+        api.JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+    api.UserResponse newUser = await _authenticationRepository.changeAvatar(
+        file, user.token, user.refreshToken);
+    user = api.JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+    api.JwtUserResponse finalUser = api.JwtUserResponse(
+        token: user.token,
+        refreshToken: user.refreshToken,
+        id: user.id,
+        userName: user.userName,
+        fullName: user.fullName,
+        avatar: newUser.avatar,
+        createdAt: user.createdAt);
+    await box.write('CurrentUser', jsonEncode(finalUser));
+    return finalUser;
   }
 }

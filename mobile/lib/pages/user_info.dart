@@ -1,13 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_bloc.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_event.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark_list/bookmark_list_state.dart';
+import 'package:newmyanonamousepdf/bloc/change_avatar/change_avatar_bloc.dart';
+import 'package:newmyanonamousepdf/bloc/change_avatar/change_avatar_event.dart';
+import 'package:newmyanonamousepdf/bloc/change_avatar/change_avatar_state.dart';
 import 'package:newmyanonamousepdf/bloc/ownBooks/own_books_bloc.dart';
 import 'package:newmyanonamousepdf/bloc/ownBooks/own_books_event.dart';
 import 'package:newmyanonamousepdf/bloc/ownBooks/own_books_state.dart'
@@ -61,34 +67,35 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                 children: [
                   Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: CachedNetworkImage(
-                            imageBuilder: (context, imageProvider) => Container(
-                                  height: 100,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                            imageUrl: globals.baseUrlApi +
-                                "book/download/${user.avatar}",
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) => const Icon(
-                                  Icons.error,
-                                  size: 100,
-                                  color: Colors.white,
-                                ),
-                            httpHeaders: {
-                              "Authorization":
-                                  "Bearer " + user.token.toString(),
-                              //"Content-Type": "application/json",
-                              //"Accept": "application/json",
-                            }),
+                      BlocProvider<ChangeAvatarBloc>(
+                        create: (context) => ChangeAvatarBloc(),
+                        child: BlocBuilder<ChangeAvatarBloc, ChangeAvatarState>(
+                          builder: (context, state) {
+                            if (state is ChangeAvatarInitial) {
+                              return MainAvatar();
+                            } else if (state is ChangeAvatarLoading) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            } else if (state is ChangeAvatarSuccess) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BookListPage(
+                                            user: state.user,
+                                            context: context,
+                                          )),
+                                  (route) => false,
+                                );
+                              });
+                              return MainAvatar();
+                            } else if (state
+                                is ChangeAvatarAuthenticationErrorState) {
+                              goToMainWithAuthError(context, state.error);
+                            }
+                            return MainAvatar();
+                          },
+                        ),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,6 +234,97 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
             }
           },
         ),
+      ),
+    );
+  }
+}
+
+class MainAvatar extends StatelessWidget {
+  AuthenticationService authService = JwtAuthenticationService();
+  final box = GetStorage();
+
+  @override
+  Widget build(BuildContext context) {
+    final changeAvatar = BlocProvider.of<ChangeAvatarBloc>(context);
+    JwtUserResponse user =
+        JwtUserResponse.fromJson(jsonDecode(box.read("CurrentUser")));
+    print(user.avatar);
+    return Padding(
+      padding: const EdgeInsets.all(30.0),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CachedNetworkImage(
+              imageBuilder: (context, imageProvider) => Container(
+                    height: 100,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                          image: imageProvider, fit: BoxFit.cover),
+                    ),
+                  ),
+              imageUrl: globals.baseUrlApi + "book/download/${user.avatar}",
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(
+                    Icons.error,
+                    size: 100,
+                    color: Colors.white,
+                  ),
+              httpHeaders: {
+                "Authorization": "Bearer " + user.token.toString(),
+              }),
+          Positioned(
+            bottom: -10,
+            right: -10,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: Container(
+                decoration: BoxDecoration(
+                    color:
+                        const Color.fromARGB(255, 45, 45, 45).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(100)),
+                child: Material(
+                  color: Colors.transparent,
+                  child: IconButton(
+                    onPressed: () async {
+                      FilePickerResult? result =
+                          await FilePicker.platform.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: ['jpeg', 'jpg', 'png'],
+                      );
+                      File file = File(result!.files.single.path!);
+                      CroppedFile croppedFile = await ImageCropper().cropImage(
+                            sourcePath: file.path,
+                            aspectRatioPresets: [CropAspectRatioPreset.square],
+                            uiSettings: [
+                              AndroidUiSettings(
+                                  toolbarTitle: 'Cropper',
+                                  toolbarColor: Colors.deepOrange,
+                                  toolbarWidgetColor: Colors.white,
+                                  initAspectRatio: CropAspectRatioPreset.square,
+                                  lockAspectRatio: true),
+                              IOSUiSettings(
+                                title: 'Cropper',
+                              ),
+                              WebUiSettings(
+                                context: context,
+                              ),
+                            ],
+                          ) ??
+                          CroppedFile(file.path);
+                      changeAvatar.add(
+                          ClickEditButtonEvent(file: File(croppedFile.path)));
+                    },
+                    icon: const Icon(Icons.edit),
+                    color: Colors.white,
+                    iconSize: 25,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

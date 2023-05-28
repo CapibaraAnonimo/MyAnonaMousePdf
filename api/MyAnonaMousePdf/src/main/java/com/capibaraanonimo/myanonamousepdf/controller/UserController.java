@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -56,7 +57,6 @@ public class UserController {
 
     @PostMapping("/auth/register")
     public ResponseEntity<UserResponse> createUserWithUserRole(@RequestBody @Valid CreateUserRequest createUserRequest) {
-        System.out.println(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.fromUser(userService.createUserWithUserRole(createUserRequest)));
     }
 
@@ -69,8 +69,6 @@ public class UserController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<JwtUserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
-        System.out.println("Se inicia sesión");
-
         // Realizamos la autenticación
 
         Authentication authentication =
@@ -144,5 +142,11 @@ public class UserController {
     @GetMapping("/bookmarks")
     public List<BookResponse> getBookmarks(@AuthenticationPrincipal User loggedUser) {
         return userService.findBookmarks(loggedUser.getId()).stream().map(BookResponse::of).toList();
+    }
+
+    @PutMapping("me/avatar")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse editAvatar (@RequestPart("file") MultipartFile file, @AuthenticationPrincipal User loggedUser) {
+        return UserResponse.fromUser(userService.editAvatar(file, loggedUser));
     }
 }

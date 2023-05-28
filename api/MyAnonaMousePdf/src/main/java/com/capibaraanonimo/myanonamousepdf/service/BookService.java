@@ -42,8 +42,6 @@ public class BookService {
     }
 
     public UUID save(CreateBook book, User user) {
-        System.out.println(user);
-        System.out.println(user.getId());
         return bookRepository.save(
                 Book.builder()
                         .uploader(user)
@@ -92,7 +90,7 @@ public class BookService {
         return bookOptional.get();
     }
 
-    public Page<Book> search(List<SearchCriteria> params, Pageable pageable) { //TODO poner el search para que busque sin importar las mayusculas
+    public Page<Book> search(List<SearchCriteria> params, Pageable pageable) { //TODO poner el search para que busque sin importar las mayúsculas
         BookSpecificationBuilder personSpecificationBuilder = new BookSpecificationBuilder(params);
         Specification<Book> spec = personSpecificationBuilder.build();
         Page<Book> books = bookRepository.findAll(spec, pageable);
@@ -135,7 +133,6 @@ public class BookService {
         if (user.isEmpty())
             throw new SingleEntityNotFoundException(loggedUser.getId(), User.class);
         List<Book> bookmarks = user.get().getBookmarks();
-        System.out.println(bookmarks.size());
         if (bookmarks.contains(book)) {
             bookmarks.remove(book);
             userService.save(loggedUser);
