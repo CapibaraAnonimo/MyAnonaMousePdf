@@ -2,13 +2,17 @@ package com.capibaraanonimo.myanonamousepdf.service;
 
 import com.capibaraanonimo.myanonamousepdf.dto.book.CreateBook;
 import com.capibaraanonimo.myanonamousepdf.dto.book.UpdateBook;
+import com.capibaraanonimo.myanonamousepdf.dto.comment.CommentResponse;
+import com.capibaraanonimo.myanonamousepdf.dto.comment.CreateComment;
 import com.capibaraanonimo.myanonamousepdf.errors.exceptions.BookNameNotFoundException;
 import com.capibaraanonimo.myanonamousepdf.errors.exceptions.ContentTypeNotValidException;
 import com.capibaraanonimo.myanonamousepdf.errors.exceptions.ListEntityNotFoundException;
 import com.capibaraanonimo.myanonamousepdf.errors.exceptions.SingleEntityNotFoundException;
 import com.capibaraanonimo.myanonamousepdf.model.Book;
+import com.capibaraanonimo.myanonamousepdf.model.Comment;
 import com.capibaraanonimo.myanonamousepdf.model.User;
 import com.capibaraanonimo.myanonamousepdf.repository.BookRepository;
+import com.capibaraanonimo.myanonamousepdf.repository.CommentRepository;
 import com.capibaraanonimo.myanonamousepdf.repository.UserRepository;
 import com.capibaraanonimo.myanonamousepdf.search.spec.BookSpecificationBuilder;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteria;
@@ -29,6 +33,7 @@ import java.util.UUID;
 public class BookService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final UserService userService;
     private final CategoryService categoryService;
     private final StorageService storageService;
@@ -151,5 +156,23 @@ public class BookService {
             throw new SingleEntityNotFoundException(loggedUser.getId(), User.class);
         List<Book> bookmarks = user.get().getBookmarks();
         return bookmarks.contains(book);
+    }
+
+    public List<CommentResponse> addComment(UUID bookId, CreateComment comment, User loggedUser) {
+        Book book = findById(bookId);
+        List<Comment> comments = book.getComments();
+        Comment newComment = Comment.builder().text(comment.getText()).user(loggedUser).build();
+        commentRepository.save(newComment);
+        comments.add(newComment);
+        book.setComments(comments);
+        bookRepository.save(book);
+        return comments.stream().map(CommentResponse::of).toList();
+        //return CommentResponse.of(newComment);
+    }
+
+    public List<CommentResponse> getAllComments(UUID bookId) {
+        Book book = findById(bookId);
+
+        return book.getComments().stream().map(CommentResponse::of).toList();
     }
 }

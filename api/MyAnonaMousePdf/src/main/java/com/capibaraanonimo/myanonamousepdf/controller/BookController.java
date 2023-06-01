@@ -3,6 +3,8 @@ package com.capibaraanonimo.myanonamousepdf.controller;
 import com.capibaraanonimo.myanonamousepdf.dto.book.BookResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.book.CreateBook;
 import com.capibaraanonimo.myanonamousepdf.dto.book.UpdateBook;
+import com.capibaraanonimo.myanonamousepdf.dto.comment.CommentResponse;
+import com.capibaraanonimo.myanonamousepdf.dto.comment.CreateComment;
 import com.capibaraanonimo.myanonamousepdf.model.User;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteria;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteriaExtractor;
@@ -89,5 +91,17 @@ public class BookController {
     public ResponseEntity<Boolean> bookmarkBook(@PathVariable String id, @AuthenticationPrincipal User loggedUser) {
         boolean response = bookService.switchBookmark(loggedUser, UUID.fromString(id));
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping(path = "/{bookId}/comment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<CommentResponse> postComment(@PathVariable String bookId, @RequestBody @Valid CreateComment comment, @AuthenticationPrincipal User loggedUser) {
+        return bookService.addComment(UUID.fromString(bookId), comment, loggedUser);
+    }
+
+    @GetMapping(path = "/{bookId}/comment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<CommentResponse> getAllComments(@PathVariable String bookId, @AuthenticationPrincipal User loggedUser) {
+        return bookService.getAllComments(UUID.fromString(bookId));
     }
 }

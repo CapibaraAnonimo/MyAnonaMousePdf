@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
+import 'package:myanonamousepdf_api/src/models/commentResponse.dart';
 
 part 'book.g.dart';
 
@@ -16,12 +17,13 @@ class Book {
     required this.title,
     required this.author,
     required this.description,
+    required this.comment,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
   final String id;
-  final DateTime uploadDate;
+  final String uploadDate;
   final UserResponse uploader;
   final int amountDownloads;
   final String category;
@@ -30,4 +32,5 @@ class Book {
   final String title;
   final String author;
   final String description;
+  final List<CommentResponse> comment;
 }

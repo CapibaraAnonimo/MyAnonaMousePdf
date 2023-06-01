@@ -4,12 +4,17 @@ import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart' as auth;
+import 'package:newmyanonamousepdf/bloc/book_comments/book_comments_bloc.dart';
+import 'package:newmyanonamousepdf/bloc/book_comments/book_comments_event.dart';
+import 'package:newmyanonamousepdf/bloc/book_comments/book_comments_state.dart';
 import 'package:newmyanonamousepdf/bloc/book_details/book_details.dart';
 import 'package:newmyanonamousepdf/bloc/bookmark/bookmark_bloc.dart';
 import 'package:newmyanonamousepdf/main.dart';
 import 'package:newmyanonamousepdf/pages/login_page.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/util/goToMainWithAuthError.dart';
+import 'package:myanonamousepdf_api/src/models/commentUpload.dart';
+import 'package:myanonamousepdf_api/src/models/commentResponse.dart';
 
 class BookDetails extends StatelessWidget {
   String id;
@@ -35,6 +40,7 @@ class BookDetails extends StatelessWidget {
 
 class BookDetailsBody extends StatelessWidget {
   String id;
+  final searchController = TextEditingController();
 
   BookDetailsBody({super.key, required this.id});
 
@@ -56,6 +62,7 @@ class BookDetailsBody extends StatelessWidget {
             Book book = state.book;
             body:
             return Scaffold(
+              resizeToAvoidBottomInset: true,
               appBar: AppBar(
                 title: Text(book.title),
                 actions: [
@@ -155,24 +162,228 @@ class BookDetailsBody extends StatelessWidget {
                             fontSize:
                                 MediaQuery.of(context).size.width * 0.055),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 40, 0, 0),
+                        child: Column(
+                          children: [
+                            Container(
+                              color: const Color.fromARGB(255, 45, 45, 45),
+                              height: 60,
+                              child: const Center(
+                                child: Text(
+                                  'Comments',
+                                  style: TextStyle(
+                                      fontSize: 40, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            BlocProvider<BookCommentsBloc>(
+                              create: (context) => BookCommentsBloc(),
+                              child: BlocBuilder<BookCommentsBloc,
+                                  BookCommentsState>(
+                                builder: (context, state) {
+                                  final bookCommentsBloc =
+                                      BlocProvider.of<BookCommentsBloc>(
+                                          context);
+                                  if (state is BookCommentsInitial) {
+                                    print('Item Count: ' +
+                                        book.comment.length.toString());
+                                    return Column(
+                                      children: [
+                                        ListView.builder(
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          itemCount: book.comment.length,
+                                          itemBuilder: (context, index) {
+                                            return CommentWidget(
+                                                comment: book.comment[index]);
+                                          },
+                                        ),
+                                        SizedBox(
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: TextFormField(
+                                                  style: const TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 165, 165, 165),
+                                                  ),
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    labelStyle: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 165, 165, 165),
+                                                    ),
+                                                    fillColor: Color.fromARGB(
+                                                        255, 32, 32, 32),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                      color: Color.fromARGB(
+                                                          255, 165, 165, 165),
+                                                    )),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Color.fromARGB(
+                                                            255, 165, 165, 165),
+                                                      ),
+                                                    ),
+                                                    labelText: 'Title',
+                                                    filled: true,
+                                                    isDense: true,
+                                                  ),
+                                                  controller: searchController,
+                                                  keyboardType:
+                                                      TextInputType.text,
+                                                  autocorrect: false,
+                                                  validator: (value) {
+                                                    if (value == null) {
+                                                      return 'Title is required';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.send,
+                                                  color: Colors.white,
+                                                ),
+                                                onPressed: () {
+                                                  final bookCommentsBloc =
+                                                      BlocProvider.of<
+                                                              BookCommentsBloc>(
+                                                          context);
+
+                                                  print(
+                                                      'searchController.text:' +
+                                                          searchController.text
+                                                              .toString());
+                                                  bookCommentsBloc.add(
+                                                    PostCommentEvent(
+                                                        comment: CommentUpload(
+                                                            text:
+                                                                searchController
+                                                                    .text),
+                                                        id: book.id),
+                                                  );
+                                                  searchController.clear();
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (state is BookCommentsSuccess) {
+                                    return Column(
+                                      children: [
+                                        ListView.builder(
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          itemCount: state.comments.length,
+                                          itemBuilder: (context, index) {
+                                            return CommentWidget(
+                                                comment: state.comments[index]);
+                                          },
+                                        ),
+                                        SizedBox(
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: TextFormField(
+                                                  style: const TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 165, 165, 165),
+                                                  ),
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    labelStyle: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 165, 165, 165),
+                                                    ),
+                                                    fillColor: Color.fromARGB(
+                                                        255, 32, 32, 32),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                      color: Color.fromARGB(
+                                                          255, 165, 165, 165),
+                                                    )),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Color.fromARGB(
+                                                            255, 165, 165, 165),
+                                                      ),
+                                                    ),
+                                                    labelText: 'Title',
+                                                    filled: true,
+                                                    isDense: true,
+                                                  ),
+                                                  controller: searchController,
+                                                  keyboardType:
+                                                      TextInputType.text,
+                                                  autocorrect: false,
+                                                  validator: (value) {
+                                                    if (value == null) {
+                                                      return 'Title is required';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.send,
+                                                  color: Colors.white,
+                                                ),
+                                                onPressed: () {
+                                                  final bookCommentsBloc =
+                                                      BlocProvider.of<
+                                                              BookCommentsBloc>(
+                                                          context);
+
+                                                  bookCommentsBloc.add(
+                                                    PostCommentEvent(
+                                                        comment: CommentUpload(
+                                                            text:
+                                                                searchController
+                                                                    .text),
+                                                        id: book.id),
+                                                  );
+                                                  searchController.clear();
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (state
+                                      is AuthenticationErrorState) {
+                                    goToMainWithAuthError(context, state.error);
+                                  }
+                                  return const CircularProgressIndicator();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),
               ),
+              //bottomNavigationBar:
             );
           } else if (state is BookDetailsFailure) {
           } else if (state is AuthenticationError) {
-            /*WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => MyAnonaMousePdf(error: state.error)),
-                (route) => false,
-              );
-            });
-            context
-                .read<AuthenticationBloc>()
-                .add(auth.AuthenticationError(error: state.error));*/
             goToMainWithAuthError(context, state.error);
           }
           print("Current State: " + state.toString());
@@ -181,5 +392,29 @@ class BookDetailsBody extends StatelessWidget {
             style: TextStyle(fontSize: 40),
           );
         }));
+  }
+}
+
+class CommentWidget extends StatelessWidget {
+  final CommentResponse comment;
+
+  const CommentWidget({super.key, required this.comment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Column(
+        children: [
+          Text(
+            comment.text,
+            style: const TextStyle(fontSize: 20, color: Colors.white),
+          ),
+          Text(
+            comment.commentDate,
+            style: const TextStyle(fontSize: 20, color: Colors.white),
+          ),
+        ],
+      ),
+    );
   }
 }

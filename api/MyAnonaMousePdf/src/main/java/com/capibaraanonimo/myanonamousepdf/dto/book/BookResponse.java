@@ -1,10 +1,13 @@
 package com.capibaraanonimo.myanonamousepdf.dto.book;
 
+import com.capibaraanonimo.myanonamousepdf.dto.comment.CommentResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.user.UserResponse;
 import com.capibaraanonimo.myanonamousepdf.model.Book;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -15,6 +18,7 @@ import java.util.UUID;
 public class BookResponse { //FIXME no pilla lo heredado "extends BookCreatedResponse"
     private UUID id;
 
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime uploadDate;
 
     private UserResponse uploader;
@@ -22,6 +26,8 @@ public class BookResponse { //FIXME no pilla lo heredado "extends BookCreatedRes
     private long amountDownloads;
 
     private String category;
+
+    private List<CommentResponse> comment;
 
     @Builder.Default()
     private boolean vip = false;
@@ -40,6 +46,7 @@ public class BookResponse { //FIXME no pilla lo heredado "extends BookCreatedRes
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .description(book.getDescription())
+                .comment(book.getComments().stream().map(CommentResponse::of).toList())
                 .build();
     }
 }

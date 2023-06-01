@@ -2,6 +2,7 @@ package com.capibaraanonimo.myanonamousepdf.dto.book;
 
 import com.capibaraanonimo.myanonamousepdf.dto.user.UserResponse;
 import com.capibaraanonimo.myanonamousepdf.model.Book;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.UUID;
 public class BookCreatedResponse {
     public UUID id;
 
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     protected LocalDateTime uploadDate;
 
     protected UserResponse uploader;

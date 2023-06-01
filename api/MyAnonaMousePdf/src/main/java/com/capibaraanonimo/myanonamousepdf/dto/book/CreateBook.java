@@ -4,7 +4,6 @@ import com.capibaraanonimo.myanonamousepdf.validation.single.annotations.Categor
 import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.UUID;
 
 @Getter
 @Setter
