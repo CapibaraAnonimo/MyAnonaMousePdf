@@ -58,7 +58,7 @@ public class Book {
     @Builder.Default()
     private boolean vip = false;
 
-    private String book, title, author;
+    private String image, book, title, author;
 
     @Length(max = 6000)
     private String description;

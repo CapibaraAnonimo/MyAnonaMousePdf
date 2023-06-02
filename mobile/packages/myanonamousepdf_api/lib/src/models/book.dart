@@ -14,6 +14,7 @@ class Book {
     required this.category,
     required this.vip,
     required this.book,
+    required this.image,
     required this.title,
     required this.author,
     required this.description,
@@ -29,6 +30,7 @@ class Book {
   final String category;
   final bool vip;
   final String book;
+  final String image;
   final String title;
   final String author;
   final String description;

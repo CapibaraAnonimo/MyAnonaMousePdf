@@ -32,6 +32,7 @@ class MyAnonaMousePdf extends StatelessWidget {
 
     return MaterialApp(
       title: 'Authentication Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         scaffoldBackgroundColor: const Color.fromARGB(255, 30, 30, 30),

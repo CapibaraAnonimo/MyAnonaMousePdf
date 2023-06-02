@@ -31,7 +31,9 @@ class BookRepository {
           refreshToken);
 
       print('devuelvo el Json');
-      return jsonDecode(response.body);
+      return response.length == 0
+          ? Map<String, dynamic>()
+          : jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -42,11 +44,7 @@ class BookRepository {
       final response = await _myanonamousepdfApiClient.getAuth(
           'me/books', token, refreshToken);
 
-      if (response.statusCode == 404) {
-        return [];
-      }
-
-      return jsonDecode(response.body);
+      return jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -57,11 +55,8 @@ class BookRepository {
       final response = await _myanonamousepdfApiClient.getAuth(
           'bookmarks', token, refreshToken);
 
-      if (response.statusCode == 404) {
-        return [];
-      }
-
-      return jsonDecode(response.body);
+      print(response);
+      return response.length == 0 ? [] : jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -72,7 +67,7 @@ class BookRepository {
     try {
       final response = await _myanonamousepdfApiClient.getAuth(
           'book/' + id, token, refreshToken);
-      return jsonDecode(response.body);
+      return jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -105,8 +100,7 @@ class BookRepository {
       String id, String token, String refreshToken) async {
     try {
       return booleanFromString((await _myanonamousepdfApiClient.getAuth(
-              "book/bookmark/$id", token, refreshToken))
-          .body);
+          "book/bookmark/$id", token, refreshToken)));
     } on AuthenticationException {
       rethrow;
     }

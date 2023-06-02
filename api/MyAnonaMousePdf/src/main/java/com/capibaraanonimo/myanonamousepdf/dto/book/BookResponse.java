@@ -32,7 +32,7 @@ public class BookResponse { //FIXME no pilla lo heredado "extends BookCreatedRes
     @Builder.Default()
     private boolean vip = false;
 
-    private String book, title, author, description;
+    private String book, image, title, author, description;
 
     public static BookResponse of(Book book) {
         return BookResponse.builder()
@@ -43,6 +43,7 @@ public class BookResponse { //FIXME no pilla lo heredado "extends BookCreatedRes
                 .category(book.getCategory().getName())
                 .vip(book.isVip())
                 .book(book.getBook())
+                .image(book.getImage())
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .description(book.getDescription())

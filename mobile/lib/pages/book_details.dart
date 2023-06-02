@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
@@ -15,6 +20,7 @@ import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/util/goToMainWithAuthError.dart';
 import 'package:myanonamousepdf_api/src/models/commentUpload.dart';
 import 'package:myanonamousepdf_api/src/models/commentResponse.dart';
+import '../util/globals.dart' as globals;
 
 class BookDetails extends StatelessWidget {
   String id;
@@ -39,6 +45,7 @@ class BookDetails extends StatelessWidget {
 }
 
 class BookDetailsBody extends StatelessWidget {
+  final box = GetStorage();
   String id;
   final searchController = TextEditingController();
 
@@ -47,6 +54,8 @@ class BookDetailsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = JwtAuthenticationService();
+    JwtUserResponse user =
+        JwtUserResponse.fromJson(jsonDecode(box.read("CurrentUser")));
 
     return BlocProvider<BookDetailsBloc>(
         create: (context) => BookDetailsBloc(authService),
@@ -128,10 +137,32 @@ class BookDetailsBody extends StatelessWidget {
                 child: Center(
                   child: Column(
                     children: [
-                      Image.network(
+                      CachedNetworkImage(
+                          imageBuilder: (context, imageProvider) => Container(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                height: 350,
+                                decoration: BoxDecoration(
+                                  //shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.contain),
+                                ),
+                              ),
+                          imageUrl: globals.baseUrlApi +
+                              "book/download/${book.image}",
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                          httpHeaders: {
+                            "Authorization": "Bearer ${user!.token}",
+                            //"Content-Type": "application/json",
+                            //"Accept": "application/json",
+                          }),
+                      /*Image.network(
                         'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg',
                         width: MediaQuery.of(context).size.width * 0.5,
-                      ),
+                      ),*/
                       Text(
                         book.title,
                         style: TextStyle(
@@ -186,18 +217,30 @@ class BookDetailsBody extends StatelessWidget {
                                       BlocProvider.of<BookCommentsBloc>(
                                           context);
                                   if (state is BookCommentsInitial) {
-                                    print('Item Count: ' +
-                                        book.comment.length.toString());
                                     return Column(
                                       children: [
-                                        ListView.builder(
-                                          scrollDirection: Axis.vertical,
-                                          shrinkWrap: true,
-                                          itemCount: book.comment.length,
-                                          itemBuilder: (context, index) {
-                                            return CommentWidget(
-                                                comment: book.comment[index]);
-                                          },
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                2,
+                                          ),
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.vertical,
+                                            shrinkWrap: true,
+                                            itemCount: book.comment.length,
+                                            itemBuilder: (context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        0, 10, 0, 5),
+                                                child: CommentWidget(
+                                                    comment:
+                                                        book.comment[index]),
+                                              );
+                                            },
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 50,
@@ -253,24 +296,23 @@ class BookDetailsBody extends StatelessWidget {
                                                   color: Colors.white,
                                                 ),
                                                 onPressed: () {
-                                                  final bookCommentsBloc =
-                                                      BlocProvider.of<
-                                                              BookCommentsBloc>(
-                                                          context);
+                                                  if (searchController
+                                                      .text.isNotEmpty) {
+                                                    final bookCommentsBloc =
+                                                        BlocProvider.of<
+                                                                BookCommentsBloc>(
+                                                            context);
 
-                                                  print(
-                                                      'searchController.text:' +
-                                                          searchController.text
-                                                              .toString());
-                                                  bookCommentsBloc.add(
-                                                    PostCommentEvent(
-                                                        comment: CommentUpload(
-                                                            text:
-                                                                searchController
-                                                                    .text),
-                                                        id: book.id),
-                                                  );
-                                                  searchController.clear();
+                                                    bookCommentsBloc.add(
+                                                      PostCommentEvent(
+                                                          comment: CommentUpload(
+                                                              text:
+                                                                  searchController
+                                                                      .text),
+                                                          id: book.id),
+                                                    );
+                                                    searchController.clear();
+                                                  }
                                                 },
                                               ),
                                             ],
@@ -281,14 +323,28 @@ class BookDetailsBody extends StatelessWidget {
                                   } else if (state is BookCommentsSuccess) {
                                     return Column(
                                       children: [
-                                        ListView.builder(
-                                          scrollDirection: Axis.vertical,
-                                          shrinkWrap: true,
-                                          itemCount: state.comments.length,
-                                          itemBuilder: (context, index) {
-                                            return CommentWidget(
-                                                comment: state.comments[index]);
-                                          },
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                2,
+                                          ),
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.vertical,
+                                            shrinkWrap: true,
+                                            itemCount: state.comments.length,
+                                            itemBuilder: (context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        0, 10, 0, 5),
+                                                child: CommentWidget(
+                                                    comment:
+                                                        state.comments[index]),
+                                              );
+                                            },
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 50,
@@ -344,20 +400,23 @@ class BookDetailsBody extends StatelessWidget {
                                                   color: Colors.white,
                                                 ),
                                                 onPressed: () {
-                                                  final bookCommentsBloc =
-                                                      BlocProvider.of<
-                                                              BookCommentsBloc>(
-                                                          context);
+                                                  if (searchController
+                                                      .text.isNotEmpty) {
+                                                    final bookCommentsBloc =
+                                                        BlocProvider.of<
+                                                                BookCommentsBloc>(
+                                                            context);
 
-                                                  bookCommentsBloc.add(
-                                                    PostCommentEvent(
-                                                        comment: CommentUpload(
-                                                            text:
-                                                                searchController
-                                                                    .text),
-                                                        id: book.id),
-                                                  );
-                                                  searchController.clear();
+                                                    bookCommentsBloc.add(
+                                                      PostCommentEvent(
+                                                          comment: CommentUpload(
+                                                              text:
+                                                                  searchController
+                                                                      .text),
+                                                          id: book.id),
+                                                    );
+                                                    searchController.clear();
+                                                  }
                                                 },
                                               ),
                                             ],
@@ -402,19 +461,53 @@ class CommentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
+    return Container(
+      decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 45, 45, 45),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      padding: EdgeInsets.all(10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
+            comment.userId,
+            style: const TextStyle(fontSize: 15, color: Colors.white),
+            //textAlign: TextAlign.justify,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Text(
             comment.text,
-            style: const TextStyle(fontSize: 20, color: Colors.white),
+            style: const TextStyle(fontSize: 15, color: Colors.white),
+            //textAlign: TextAlign.justify,
+          ),
+          const SizedBox(
+            height: 5,
           ),
           Text(
             comment.commentDate,
-            style: const TextStyle(fontSize: 20, color: Colors.white),
+            style: const TextStyle(fontSize: 10, color: Colors.white),
+            textAlign: TextAlign.right,
           ),
         ],
       ),
     );
+  }
+}
+
+class ImageUtils {
+  static Future<int> getImageHeight(ImageProvider imageProvider) {
+    final completer = Completer<int>();
+    final listener = ImageStreamListener((ImageInfo info, _) {
+      final image = info.image;
+      final imageHeight = image.height;
+      completer.complete(imageHeight);
+    });
+
+    final stream = imageProvider.resolve(ImageConfiguration.empty);
+    stream.addListener(listener);
+
+    return completer.future;
   }
 }

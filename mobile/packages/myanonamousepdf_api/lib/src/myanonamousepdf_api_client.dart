@@ -27,8 +27,8 @@ class MyanonamousepdfApiClient {
   final box = GetStorage();
 
   //static String _baseUrlApi = "http://localhost:8080/";
-  //static String _baseUrlApi = "http://10.0.2.2:8080/";
-  static String _baseUrlApi = "http://192.168.0.159:8080/";
+  static String _baseUrlApi = "http://10.0.2.2:8080/";
+  //static String _baseUrlApi = "http://192.168.0.159:8080/";
 
   final http.Client _httpClientt;
 
@@ -109,7 +109,7 @@ class MyanonamousepdfApiClient {
     print(_baseUrlApi + url);
     final uri = Uri.parse(_baseUrlApi + url);
     try {
-      final postResponse = await _httpClient.get(
+      final getResponse = await _httpClient.get(
         uri,
         headers: {
           "Content-Type": "application/json",
@@ -118,8 +118,8 @@ class MyanonamousepdfApiClient {
         },
       );
 
-      print('getAuth status code: ' + postResponse.statusCode.toString());
-      return postResponse;
+      print('getAuth status code: ' + getResponse.statusCode.toString());
+      return getResponse.statusCode == 404 ? [] : _response(getResponse);
     } on AuthenticationException {
       rethrow;
     }
