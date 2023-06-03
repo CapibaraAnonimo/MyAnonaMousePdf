@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart';
 import 'package:newmyanonamousepdf/bloc/book_list/book_list.dart';
+import 'package:newmyanonamousepdf/main.dart';
 import 'package:newmyanonamousepdf/pages/pages.dart';
 import 'package:newmyanonamousepdf/pages/user_info.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
@@ -251,10 +252,11 @@ class _BodyState extends State<ScreenWidget> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancel Upload')),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel Upload'),
+                      ),
                       ElevatedButton(
                         onPressed: () async {
                           Book book = await bookService.upload(
@@ -266,10 +268,11 @@ class _BodyState extends State<ScreenWidget> {
                             ),
                             file,
                           );
+
                           Navigator.pop(context);
                           // ignore: use_build_context_synchronously
                           showDialog(
-                              context: context,
+                              context: navigatorKey.currentContext!,
                               builder: (context) {
                                 return AlertDialog(
                                     backgroundColor:

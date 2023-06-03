@@ -64,9 +64,9 @@ class BookDetailsBody extends StatelessWidget {
           final _bookBloc = BlocProvider.of<BookDetailsBloc>(context);
           if (state is BookDetailsInitial) {
             _bookBloc.add(GetData(id: id));
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (state is BookDetailsLoading) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (state is BookDetailsSuccess) {
             Book book = state.book;
             body:
@@ -470,8 +470,8 @@ class CommentWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            comment.userId,
-            style: const TextStyle(fontSize: 15, color: Colors.white),
+            comment.username,
+            style: const TextStyle(fontSize: 15, color: Color.fromRGBO(30, 136, 229, 1)),
             //textAlign: TextAlign.justify,
           ),
           const SizedBox(
@@ -493,21 +493,5 @@ class CommentWidget extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class ImageUtils {
-  static Future<int> getImageHeight(ImageProvider imageProvider) {
-    final completer = Completer<int>();
-    final listener = ImageStreamListener((ImageInfo info, _) {
-      final image = info.image;
-      final imageHeight = image.height;
-      completer.complete(imageHeight);
-    });
-
-    final stream = imageProvider.resolve(ImageConfiguration.empty);
-    stream.addListener(listener);
-
-    return completer.future;
   }
 }

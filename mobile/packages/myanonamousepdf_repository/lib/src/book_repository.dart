@@ -44,7 +44,7 @@ class BookRepository {
       final response = await _myanonamousepdfApiClient.getAuth(
           'me/books', token, refreshToken);
 
-      return jsonDecode(response);
+      return response.length == 0 ? [] : jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }

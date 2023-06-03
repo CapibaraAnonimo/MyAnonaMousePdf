@@ -20,14 +20,14 @@ public class CommentResponse {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime commentDate;
 
-    private UUID userId;
+    private String username;
 
     public static CommentResponse of(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .text(comment.getText())
                 .commentDate(comment.getCommentDate())
-                .userId(comment.getUser().getId())
+                .username(comment.getUser().getUsername())
                 .build();
     }
 }

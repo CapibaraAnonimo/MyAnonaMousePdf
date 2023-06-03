@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +66,7 @@ public class BookController {
 
     @PostMapping(path = "/upload/file/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookResponse postBookFile(@PathVariable String id, @RequestPart("file") MultipartFile file) {
+    public BookResponse postBookFile(@PathVariable String id, @RequestPart("file") MultipartFile file) throws IOException {
 
         return BookResponse.of(bookService.saveFile(file, UUID.fromString(id)));
     }

@@ -7,7 +7,7 @@ class CommentResponse {
   const CommentResponse({
     required this.text,
     required this.id,
-    required this.userId,
+    required this.username,
     required this.commentDate,
   });
 
@@ -18,6 +18,6 @@ class CommentResponse {
 
   final String id;
   final String text;
-  final String userId;
+  final String username;
   final String commentDate;
 }

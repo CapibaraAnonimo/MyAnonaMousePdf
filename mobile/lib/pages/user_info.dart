@@ -156,9 +156,10 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                     if (state.books.isEmpty) {
                                       return const Center(
                                           child: Text(
-                                        'You have no Bookmarks\nGo find some cool books',
+                                        'You haven\'t upload any books\nGo write some cool books',
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 30),
+                                        textAlign: TextAlign.center,
                                       ));
                                     }
                                     return ListView.builder(
@@ -194,6 +195,7 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                         'You have no Bookmarks\nGo find some cool books',
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 30),
+                                        textAlign: TextAlign.center,
                                       ));
                                     }
                                     return RefreshIndicator(

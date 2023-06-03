@@ -7,6 +7,8 @@ import 'package:newmyanonamousepdf/bloc/auth/auth.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
 import 'package:newmyanonamousepdf/pages/pages.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   runApp(BlocProvider<AuthenticationBloc>(
     create: (context) {
@@ -63,6 +65,7 @@ class MyAnonaMousePdf extends StatelessWidget {
           return const CircularProgressIndicator();
         },
       ),
+      navigatorKey: navigatorKey,
     );
   }
 }

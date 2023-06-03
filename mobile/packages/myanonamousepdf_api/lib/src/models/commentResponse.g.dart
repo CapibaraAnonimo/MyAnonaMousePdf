@@ -16,7 +16,7 @@ CommentResponse _$CommentResponseFromJson(Map<String, dynamic> json) =>
         final val = CommentResponse(
           text: $checkedConvert('text', (v) => v as String),
           id: $checkedConvert('id', (v) => v as String),
-          userId: $checkedConvert('userId', (v) => v as String),
+          username: $checkedConvert('username', (v) => v as String),
           commentDate: $checkedConvert('commentDate', (v) => v as String),
         );
         return val;
@@ -27,6 +27,6 @@ Map<String, dynamic> _$CommentResponseToJson(CommentResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'text': instance.text,
-      'userId': instance.userId,
+      'username': instance.username,
       'commentDate': instance.commentDate,
     };

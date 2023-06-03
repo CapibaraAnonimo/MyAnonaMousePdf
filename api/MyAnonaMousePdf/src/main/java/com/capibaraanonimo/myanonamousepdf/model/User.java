@@ -79,6 +79,7 @@ public class User implements UserDetails { //TODO añadir un soft delete con acc
     private boolean enabled = true;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "uploader")
+    @OrderBy("uploadDate DESC")
     private List<Book> uploadedBooks;
 
     @ManyToMany(fetch = FetchType.LAZY)
