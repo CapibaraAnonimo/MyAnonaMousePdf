@@ -22,6 +22,7 @@ class BookDetailsBloc extends Bloc<BookDetailsEvent, BookDetailsState> {
       emit(BookDetailsLoading());
       final bookService = JwtBookService();
       final Book book = await bookService.getBookById(event.id);
+      print('Comments: ' + book.comment.length.toString());
       if (book != null) {
         emit(BookDetailsSuccess(book: book));
       } else {

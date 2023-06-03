@@ -2,6 +2,7 @@ package com.capibaraanonimo.myanonamousepdf.dto.book;
 
 import com.capibaraanonimo.myanonamousepdf.dto.user.UserResponse;
 import com.capibaraanonimo.myanonamousepdf.model.Book;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.UUID;
 public class BookCreatedResponse {
     public UUID id;
 
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     protected LocalDateTime uploadDate;
 
     protected UserResponse uploader;
@@ -24,7 +26,7 @@ public class BookCreatedResponse {
     @Builder.Default()
     protected boolean vip = false;
 
-    protected String book, title, author, description;
+    protected String book, image, title, author, description;
 
     public static BookCreatedResponse of(Book book) {
         return BookCreatedResponse.builder()
@@ -34,6 +36,7 @@ public class BookCreatedResponse {
                 .category(book.getCategory().getName())
                 .vip(book.isVip())
                 .book(book.getBook())
+                .image(book.getImage())
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .description(book.getDescription())

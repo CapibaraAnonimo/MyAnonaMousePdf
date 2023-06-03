@@ -92,6 +92,7 @@ public class SecurityConfig {
                 .antMatchers("/book/upload/**").hasAnyRole("USER", "VIP", "ADMIN")
                 .antMatchers("/book/edit/**").hasAnyRole("USER", "VIP", "ADMIN")
                 .antMatchers("/book/delete/**").hasAnyRole("USER", "VIP", "ADMIN")
+                .antMatchers("/book/**/comment").hasAnyRole("USER", "VIP", "ADMIN")
                 .antMatchers("/me/book").hasAnyRole("USER", "VIP", "ADMIN")
                 .antMatchers("/me/avatar").hasAnyRole("USER", "VIP", "ADMIN")
                 .antMatchers("/refreshtoken").authenticated()

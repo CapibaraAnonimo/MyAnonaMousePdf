@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 import 'package:myanonamousepdf_api/src/models/book.dart';
+import 'package:myanonamousepdf_api/src/models/commentUpload.dart';
 
 class BookRepository {
   BookRepository({MyanonamousepdfApiClient? myanonamousepdfApiClient})
@@ -30,7 +31,9 @@ class BookRepository {
           refreshToken);
 
       print('devuelvo el Json');
-      return jsonDecode(response.body);
+      return response.length == 0
+          ? Map<String, dynamic>()
+          : jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -41,11 +44,7 @@ class BookRepository {
       final response = await _myanonamousepdfApiClient.getAuth(
           'me/books', token, refreshToken);
 
-      if (response.statusCode == 404) {
-        return [];
-      }
-
-      return jsonDecode(response.body);
+      return response.length == 0 ? [] : jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -56,11 +55,8 @@ class BookRepository {
       final response = await _myanonamousepdfApiClient.getAuth(
           'bookmarks', token, refreshToken);
 
-      if (response.statusCode == 404) {
-        return [];
-      }
-
-      return jsonDecode(response.body);
+      print(response);
+      return response.length == 0 ? [] : jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -71,7 +67,7 @@ class BookRepository {
     try {
       final response = await _myanonamousepdfApiClient.getAuth(
           'book/' + id, token, refreshToken);
-      return jsonDecode(response.body);
+      return jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }
@@ -104,8 +100,7 @@ class BookRepository {
       String id, String token, String refreshToken) async {
     try {
       return booleanFromString((await _myanonamousepdfApiClient.getAuth(
-              "book/bookmark/$id", token, refreshToken))
-          .body);
+          "book/bookmark/$id", token, refreshToken)));
     } on AuthenticationException {
       rethrow;
     }
@@ -133,6 +128,18 @@ class BookRepository {
         throw UnsupportedError(
             'The string should be equals to true or false, but was neither of them');
       }
+    } on AuthenticationException {
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> postComment(CommentUpload comment, String id,
+      String token, String refreshToken) async {
+    try {
+      final response = await _myanonamousepdfApiClient.postAuth(
+          'book/$id/comment', comment.toJson(), token, refreshToken);
+      print(jsonDecode(response).runtimeType);
+      return jsonDecode(response);
     } on AuthenticationException {
       rethrow;
     }

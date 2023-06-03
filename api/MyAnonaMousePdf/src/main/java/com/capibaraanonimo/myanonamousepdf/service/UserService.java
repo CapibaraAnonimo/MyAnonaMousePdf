@@ -63,6 +63,7 @@ public class UserService {
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
                 .avatar(createUserRequest.getAvatar())
                 .fullName(createUserRequest.getFullName())
+                .avatar("avatar.jpg")
                 .roles(roles)
                 .build();
 

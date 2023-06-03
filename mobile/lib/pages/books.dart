@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:myanonamousepdf_api/myanonamousepdf_api.dart' as api;
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_bloc.dart';
@@ -11,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newmyanonamousepdf/bloc/auth/auth_event.dart';
 import 'package:newmyanonamousepdf/bloc/book_list/book_list.dart';
+import 'package:newmyanonamousepdf/main.dart';
 import 'package:newmyanonamousepdf/pages/pages.dart';
 import 'package:newmyanonamousepdf/pages/user_info.dart';
 import 'package:newmyanonamousepdf/service/auth_service.dart';
@@ -249,10 +252,11 @@ class _BodyState extends State<ScreenWidget> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancel Upload')),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel Upload'),
+                      ),
                       ElevatedButton(
                         onPressed: () async {
                           Book book = await bookService.upload(
@@ -264,10 +268,11 @@ class _BodyState extends State<ScreenWidget> {
                             ),
                             file,
                           );
+
                           Navigator.pop(context);
                           // ignore: use_build_context_synchronously
                           showDialog(
-                              context: context,
+                              context: navigatorKey.currentContext!,
                               builder: (context) {
                                 return AlertDialog(
                                     backgroundColor:
@@ -567,12 +572,15 @@ class _BodyState extends State<ScreenWidget> {
 }
 
 class Cards extends StatelessWidget {
+  final box = GetStorage();
   final Book book;
 
-  const Cards({super.key, required this.book});
+  Cards({super.key, required this.book});
 
   @override
   Widget build(BuildContext context) {
+    JwtUserResponse user =
+        JwtUserResponse.fromJson(jsonDecode(box.read("CurrentUser")));
     return Padding(
       padding: const EdgeInsets.only(left: 5, right: 5, top: 1, bottom: 1),
       child: Card(
@@ -594,10 +602,36 @@ class Cards extends StatelessWidget {
                   bottomLeft: Radius.circular(5),
                   topLeft: Radius.circular(5),
                 ),
-                child: Image.network(
+                child: SizedBox(
+                  width: 90,
+                  child: Center(
+                    child: CachedNetworkImage(
+                        imageBuilder: (context, imageProvider) => Container(
+                              width: 90,
+                              height: 130,
+                              decoration: BoxDecoration(
+                                //shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: imageProvider, fit: BoxFit.contain),
+                              ),
+                            ),
+                        imageUrl:
+                            globals.baseUrlApi + "book/download/${book.image}",
+                        placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                        httpHeaders: {
+                          "Authorization": "Bearer ${user!.token}",
+                          //"Content-Type": "application/json",
+                          //"Accept": "application/json",
+                        }),
+                  ),
+                ),
+                /*Image.network(
                   'https://innovating.capital/wp-content/uploads/2021/05/vertical-placeholder-image.jpg',
                   width: 90,
-                ),
+                ),*/
               ),
               Column(
                 mainAxisSize: MainAxisSize.max,

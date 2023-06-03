@@ -109,7 +109,7 @@ class MyanonamousepdfApiClient {
     print(_baseUrlApi + url);
     final uri = Uri.parse(_baseUrlApi + url);
     try {
-      final postResponse = await _httpClient.get(
+      final getResponse = await _httpClient.get(
         uri,
         headers: {
           "Content-Type": "application/json",
@@ -118,8 +118,28 @@ class MyanonamousepdfApiClient {
         },
       );
 
-      print('getAuth status code: ' + postResponse.statusCode.toString());
-      return postResponse;
+      print('getAuth status code: ' + getResponse.statusCode.toString());
+      return getResponse.statusCode == 404 ? [] : _response(getResponse);
+    } on AuthenticationException {
+      rethrow;
+    }
+  }
+
+  Future<dynamic> postAuth(
+      String url, dynamic body, String token, String refreshToken) async {
+    print(_baseUrlApi + url);
+    final uri = Uri.parse(_baseUrlApi + url);
+    print(body);
+
+    try {
+      final postResponse =
+          await _httpClient.post(uri, body: jsonEncode(body), headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer " + token,
+      });
+
+      return _response(postResponse);
     } on AuthenticationException {
       rethrow;
     }
@@ -171,52 +191,6 @@ class MyanonamousepdfApiClient {
       rethrow;
     }
   }
-
-  /*static Future<Uint8List> download(
-      String url, token, DownloadProgress downloadProgress) async {
-    final completer = Completer<Uint8List>();
-    final client = http.Client();
-    final request = http.Request('GET', Uri.parse(url));
-    request.headers.addAll({
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "Authorization": "Bearer " + token,
-    });
-    final response = client.send(request);
-
-    int downloadedBytes = 0;
-    List<List<int>> chunkList = [];
-
-    response.asStream().listen((http.StreamedResponse streamedResponse) {
-      streamedResponse.stream.listen(
-        (chunk) {
-          final contentLength = streamedResponse.contentLength ?? 0;
-          final progress = (downloadedBytes / contentLength) * 100;
-          downloadProgress(contentLength, downloadedBytes, progress);
-
-          chunkList.add(chunk);
-          downloadedBytes += chunk.length;
-        },
-        onDone: () {
-          final contentLength = streamedResponse.contentLength ?? 0;
-          final progress = (downloadedBytes / contentLength) * 100;
-          downloadProgress(contentLength, downloadedBytes, progress);
-
-          int start = 0;
-          final bytes = Uint8List(contentLength);
-
-          for (var chunk in chunkList) {
-            bytes.setRange(start, start + chunk.length, chunk);
-          }
-
-          completer.complete(bytes);
-        },
-        onError: (error) => completer.completeError(error),
-      );
-    });
-
-    return completer.future;
-  }*/
 
   Future<Book> upload(
       BookUpload book, File file, String token, String refreshTokens) async {

@@ -24,7 +24,7 @@ public class JwtUserResponse extends UserResponse {
         createdAt = userResponse.getCreatedAt();
     }
 
-    public static JwtUserResponse of (User user, String token, String refreshToken) {
+    public static JwtUserResponse of(User user, String token, String refreshToken) {
         JwtUserResponse result = new JwtUserResponse(UserResponse.fromUser(user));
         result.setToken(token);
         result.setRefreshToken(refreshToken);

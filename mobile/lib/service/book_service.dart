@@ -7,6 +7,8 @@ import 'package:myanonamousepdf_api/src/models/book.dart';
 import 'package:myanonamousepdf_api/src/models/book_upload.dart';
 import 'package:myanonamousepdf_repository/myanonamousepdf_repository.dart'
     as repo;
+import 'package:myanonamousepdf_api/src/models/commentResponse.dart';
+import 'package:myanonamousepdf_api/src/models/commentUpload.dart';
 
 abstract class BookService {
   Future<List<Book>> getAllBooks(int page, String search);
@@ -17,6 +19,7 @@ abstract class BookService {
   Future<bool> changeBookmark(String id);
   Future<List<Book>> getOwnBooks();
   Future<List<Book>> getBookmarks();
+  Future<List<CommentResponse>> postComment(CommentUpload comment, String id);
 }
 
 class JwtBookService extends BookService {
@@ -38,7 +41,7 @@ class JwtBookService extends BookService {
       print(response);
       print(response['content']);
 
-      List<dynamic> list = response['content']?? [];
+      List<dynamic> list = response['content'] ?? [];
       box.write('currentPage', response['number']);
       box.write('maxPages', response['totalPages']);
       List<Book> bookList = [];
@@ -145,6 +148,26 @@ class JwtBookService extends BookService {
       }
       print('devuelvo la lista de libros ya hecha');
       return bookList;
+    } on AuthenticationException {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<CommentResponse>> postComment(
+      CommentUpload comment, String id) async {
+    try {
+      JwtUserResponse user =
+          JwtUserResponse.fromJson(jsonDecode(box.read('CurrentUser')));
+      final response = await _bookRepository.postComment(
+          comment, id, user.token, user.refreshToken);
+
+      print(response);
+      List<CommentResponse> list = [];
+      for (var comment in response) {
+        list.add(CommentResponse.fromJson(comment));
+      }
+      return list;
     } on AuthenticationException {
       rethrow;
     }

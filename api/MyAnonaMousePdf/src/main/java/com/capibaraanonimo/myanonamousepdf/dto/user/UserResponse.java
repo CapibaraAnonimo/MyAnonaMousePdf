@@ -17,7 +17,7 @@ public class UserResponse {
     protected String id;
     protected String userName, avatar, fullName;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     protected LocalDateTime createdAt;
 
 
