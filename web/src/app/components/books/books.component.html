@@ -1,0 +1,26 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="sidenav.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>Main Page</span>
+</mat-toolbar>
+
+<mat-sidenav-container class="container">
+  <mat-sidenav #sidenav mode="side">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/home" routerLinkActive="active">Home</a>
+      <a mat-list-item routerLink="/about" routerLinkActive="active">About</a>
+      <a mat-list-item routerLink="/contact" routerLinkActive="active">Contact</a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="book-list">
+      <mat-card class="book-card" *ngFor="let book of books">
+        <img mat-card-image src="{{ book.imageUrl }}" alt="{{ book.title }}">
+        <mat-card-title>{{ book.title }}</mat-card-title>
+        <mat-card-subtitle>{{ book.author }}</mat-card-subtitle>
+      </mat-card>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
