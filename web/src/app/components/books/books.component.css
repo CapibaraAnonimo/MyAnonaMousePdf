@@ -1,0 +1,38 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #333;
+  color: #fff;
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #222;
+}
+
+mat-sidenav {
+  width: 200px;
+  background-color: #222;
+  color: #fff;
+}
+
+.book-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+  gap: 20px;
+}
+
+.book-card {
+  max-width: 200px;
+  background-color: #222;
+  color: #fff;
+}
+
+.active {
+  background-color: #444;
+}

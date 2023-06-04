@@ -2,6 +2,8 @@ package com.capibaraanonimo.myanonamousepdf.controller;
 
 import com.capibaraanonimo.myanonamousepdf.dto.book.BookResponse;
 import com.capibaraanonimo.myanonamousepdf.dto.user.*;
+import com.capibaraanonimo.myanonamousepdf.errors.exceptions.AdminRequiredException;
+import com.capibaraanonimo.myanonamousepdf.model.Roles;
 import com.capibaraanonimo.myanonamousepdf.model.User;
 import com.capibaraanonimo.myanonamousepdf.security.jwt.access.JwtProvider;
 import com.capibaraanonimo.myanonamousepdf.security.jwt.refresh.RefreshToken;
@@ -69,30 +71,12 @@ public class UserController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<JwtUserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
-        // Realizamos la autenticación
+        return loginMethod(loginRequest, null);
+    }
 
-        Authentication authentication =
-                authManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                loginRequest.getUsername(),
-                                loginRequest.getPassword()
-                        )
-                );
-
-        // Una vez realizada, la guardamos en el contexto de seguridad
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Devolvemos una respuesta adecuada
-        String token = jwtProvider.generateToken(authentication);
-
-        User user = (User) authentication.getPrincipal();
-
-        // Eliminamos el token (si existe) antes de crearlo, ya que cada usuario debería tener solamente un token de refresco simultáneo
-        refreshTokenService.deleteByUser(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(JwtUserResponse.of(user, token, refreshToken.getToken()));
+    @PostMapping("/auth/login/admin")
+    public ResponseEntity<JwtUserResponse> loginAdmin(@RequestBody @Valid LoginRequest loginRequest) {
+        return loginMethod(loginRequest, Roles.ADMIN);
     }
 
     @PutMapping("/user/changePassword")
@@ -146,7 +130,37 @@ public class UserController {
 
     @PutMapping("me/avatar")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponse editAvatar (@RequestPart("file") MultipartFile file, @AuthenticationPrincipal User loggedUser) {
+    public UserResponse editAvatar(@RequestPart("file") MultipartFile file, @AuthenticationPrincipal User loggedUser) {
         return UserResponse.fromUser(userService.editAvatar(file, loggedUser));
+    }
+
+    public ResponseEntity<JwtUserResponse> loginMethod(LoginRequest loginRequest, Roles role) {
+        // Realizamos la autenticación
+
+        Authentication authentication =
+                authManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                loginRequest.getUsername(),
+                                loginRequest.getPassword()
+                        )
+                );
+
+        // Una vez realizada, la guardamos en el contexto de seguridad
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Devolvemos una respuesta adecuada
+        String token = jwtProvider.generateToken(authentication);
+
+        User user = (User) authentication.getPrincipal();
+
+        if (role == null || user.getRoles().contains(role)) {
+            // Eliminamos el token (si existe) antes de crearlo, ya que cada usuario debería tener solamente un token de refresco simultáneo
+            refreshTokenService.deleteByUser(user);
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(JwtUserResponse.of(user, token, refreshToken.getToken()));
+        } else
+            throw new AdminRequiredException(user.getUsername());
     }
 }
