@@ -16,12 +16,8 @@ export class LoginComponent {
 
   login(): void {
     this.authService.login(this.username, this.password).subscribe(response => {
-      console.log(response);
       this.authService.user = response;
-      this.router.navigate(['/', 'books'], {state: {user: response}})//.then(() => window.location.reload());
+      this.router.navigate(['/', 'books'], );
     });
-    // Implement your login logic here
-    console.log('Username:', this.username);
-    console.log('Password:', this.password);
   }
 }

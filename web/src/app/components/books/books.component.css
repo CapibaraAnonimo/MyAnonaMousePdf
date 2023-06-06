@@ -1,8 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: #333;
+  background-color: #444;
   color: #fff;
 }
 
@@ -25,14 +24,44 @@ mat-sidenav {
   justify-content: center;
   padding: 20px;
   gap: 20px;
+  width: 65%;
+  margin: auto;
 }
 
 .book-card {
-  max-width: 200px;
-  background-color: #222;
-  color: #fff;
+  max-width: 220px;
+  background-color: #333;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
 }
 
 .active {
   background-color: #444;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  color: white;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.book-card hr {
+  border: none;
+  border-top: 1px solid white;
+  margin: 10px 0;
 }
