@@ -5,7 +5,7 @@
   <span>Main Page</span>
 </mat-toolbar>
 
-<mat-sidenav-container class="container">
+<div class="container">
   <mat-sidenav #sidenav mode="side">
     <mat-nav-list>
       <a mat-list-item routerLink="/home" routerLinkActive="active">Home</a>
@@ -14,13 +14,30 @@
     </mat-nav-list>
   </mat-sidenav>
 
-  <mat-sidenav-content>
-    <div class="book-list">
-      <mat-card class="book-card" *ngFor="let book of books">
-        <img mat-card-image src="{{ book.imageUrl }}" alt="{{ book.title }}">
-        <mat-card-title>{{ book.title }}</mat-card-title>
-        <mat-card-subtitle>{{ book.author }}</mat-card-subtitle>
-      </mat-card>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  <div class="book-list">
+    <mat-card style="padding: 10px" class="book-card" *ngFor="let book of books; let i = index">
+      <img mat-card-image src="{{ images[i] }}" alt="{{ book.title }}">
+      <hr>
+      <mat-card-title>{{ book.title }}</mat-card-title>
+      <mat-card-subtitle style="color: white; margin-top: 10px">By: {{ book.author }}</mat-card-subtitle>
+      <mat-card-actions style="margin-top: auto">
+        <span class="spacer"></span>
+        <div style="display: flex; margin-right: 10px; flex-direction: row">
+          <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="download"></mat-icon>
+          <span style="font-size: 20px">{{book.amountDownloads}}</span>
+        </div>
+        <button mat-raised-button color="primary" (click)="editBook(book)" style="margin-right: 10px">Edit</button>
+        <button mat-raised-button color="warn" (click)="deleteBook(book)">Delete</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="pagination">
+    <button mat-button (click)="changePage(bookPage.number-1)" [disabled]="bookPage.number === 0">Previous</button>
+    <button mat-button *ngFor="let num of counter(); let i = index" (click)="changePage(i)"
+            [disabled]="bookPage.number === i">{{ i + 1 }}</button>
+    <button mat-button (click)="changePage(bookPage.number+1)" [disabled]="bookPage.number === bookPage.totalPages">
+      Next
+    </button>
+  </div>
+</div>
