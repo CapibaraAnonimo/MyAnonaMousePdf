@@ -1,0 +1,42 @@
+<div>
+  <h2 mat-dialog-title>Edit book: <strong><i>{{data.book.title}}</i></strong></h2>
+
+  <mat-dialog-content class="mat-typography">
+    <hr>
+    <br>
+    <mat-form-field appearance="outline" style="width: 100%">
+      <mat-label>Title</mat-label>
+      <input [(ngModel)]="title" matInput placeholder="The Lord of the Rings">
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width: 100%">
+      <mat-label>Author</mat-label>
+      <input [(ngModel)]="author" matInput placeholder="J.R.R. Tolkien">
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width: 100%">
+      <mat-label>Description</mat-label>
+      <textarea (keyup)="autoGrowTextZone($event)" (click)="autoGrowTextZone($event)" [(ngModel)]="description" matInput
+                placeholder="In ancient times the Rings of Power were crafted by the Elven-smiths, and Sauron, the Dark Lord, forged the One Ring, filling it with his own power so that he could rule all others. But the One Ring was taken from him, and though he sought it throughout Middle-earth, it remained lost to him. After many ages it fell by chance into the hands of the hobbit Bilbo Baggins.
+
+From Sauron's fastness in the Dark Tower of Mordor, his power spread far and wide. Sauron gathered all the Great Rings, but always he searched for the One Ring that would complete his dominion.
+
+When Bilbo reached his eleventy-first birthday he disappeared, bequeathing to his young cousin Frodo the Ruling Ring and a perilous quest: to journey across Middle-earth, deep into the shadow of the Dark Lord, and destroy the Ring by casting it into the Cracks of Doom.
+
+The Lord of the Rings tells of the great quest undertaken by Frodo and the Fellowship of the Ring: Gandalf the Wizard; the hobbits Merry, Pippin, and Sam; Gimli the Dwarf; Legolas the Elf; Boromir of Gondor; and a tall, mysterious stranger called Strider."></textarea>
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width: 40%">
+      <!--[hideRequiredMarker]="hideRequiredControl.value"
+      [floatLabel]="getFloatLabelValue()">-->
+      <mat-select>
+        <mat-option (click)="setCategory(category)" *ngFor="let category of categories"
+                    value="{{category.name}}">{{category.name}}</mat-option>
+      </mat-select>
+      <mat-label>Category</mat-label>
+    </mat-form-field>
+    <mat-checkbox class="example-margin" [(ngModel)]="vip">VIP</mat-checkbox>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="category===undefined" cdkFocusInitial (click)="edit()">Delete
+    </button>
+  </mat-dialog-actions>
+</div>

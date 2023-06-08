@@ -1,0 +1,13 @@
+<div>
+  <h2 style="color: darkred" mat-dialog-title>Waning!!</h2>
+  <mat-dialog-content class="mat-typography">
+    <p>This process is irreversible, are you sure about deleting this book: "<strong>
+      <i>{{data.bookName}}</i>
+    </strong>
+      "?</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="warn" cdkFocusInitial (click)="delete()">Delete</button>
+  </mat-dialog-actions>
+</div>

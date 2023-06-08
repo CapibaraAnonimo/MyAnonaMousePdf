@@ -77,9 +77,9 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) //FIXME hacer que se borre solo por el usuario que lo creo o un admin y que devuelva siempre un no content
-    public void deleteBook(@PathVariable String id) {
-        bookService.deleteById(UUID.fromString(id));
+    public ResponseEntity deleteBook(@PathVariable String id, @AuthenticationPrincipal User loggedUser) {
+        return bookService.deleteById(UUID.fromString(id), loggedUser) ?
+                ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build();
     }
 
     @GetMapping("/bookmark/{id}")

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable, tap} from "rxjs";
 import {environment} from "../../enviroments/enviroment";
@@ -8,7 +8,7 @@ import {Tokens} from "../interfaces/tokens";
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   user?: JwtUserResponse = undefined;
 
   constructor(private http: HttpClient) {
@@ -26,7 +26,7 @@ export class AuthService {
   }
 
   refreshToken(): Observable<Tokens> {
-    this.user != undefined ? console.log('Previous User: ' + this.user.refreshToken): null;
+    this.user != undefined ? console.log('Previous User: ' + this.user.refreshToken) : null;
     return this.http.post<JwtUserResponse>(`${environment.apiBaseUrl}/refreshtoken`, {refreshToken: this.user!.refreshToken})
       .pipe(tap(tokens => {
         console.log('Old User: ' + this.user);
@@ -50,5 +50,10 @@ export class AuthService {
 
   getToken(): String {
     return this.user != undefined ? this.user.token : '';
+  }
+
+  ngOnDestroy() {
+    this.user = undefined;
+    sessionStorage.removeItem('user');
   }
 }

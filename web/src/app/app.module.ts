@@ -7,15 +7,20 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MaterialImportsModule} from "./modules/material-imports.module";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {LoginComponent} from './components/login/login.component';
-import {BooksComponent} from './components/books/books.component';
+import {LoginComponent} from './components/pages/login/login.component';
+import {BooksComponent} from './components/pages/books/books.component';
 import {CorsInterceptor, HttpRequestInterceptor, TokenInterceptor} from "./services/auth.interceptor";
+import {AuthService} from "./services/auth.service";
+import { DeleteDialogComponent } from './components/dialogs/delete-dialog/delete-dialog.component';
+import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    BooksComponent
+    BooksComponent,
+    DeleteDialogComponent,
+    EditDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -28,7 +33,8 @@ import {CorsInterceptor, HttpRequestInterceptor, TokenInterceptor} from "./servi
     ReactiveFormsModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: CorsInterceptor, multi: true },
+    AuthService,
+    {provide: HTTP_INTERCEPTORS, useClass: CorsInterceptor, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true,},
     {provide: HTTP_INTERCEPTORS, useClass: HttpRequestInterceptor, multi: true},],
   bootstrap: [AppComponent]

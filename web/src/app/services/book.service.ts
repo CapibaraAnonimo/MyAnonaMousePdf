@@ -2,7 +2,8 @@ import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
 import {environment} from "../../enviroments/enviroment";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {BookPage} from "../interfaces/book-response";
+import {BookPage, BookResponse} from "../interfaces/book-response";
+import {UpdateBook} from "../interfaces/update-book";
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,21 @@ export class BookService {
       headers: {
         Authorization: 'Bearer '
       }
+    });
+  }
+
+  deleteBook(id: String) {
+    return this.http.delete(`${environment.apiBaseUrl}/book/${id}`, {
+      observe: 'response',
+      headers: new HttpHeaders()
+        .set('Authorization', 'Bearer ')
+    });
+  }
+
+  editBook(id: String, book: UpdateBook): Observable<BookResponse> {
+    return this.http.put<BookResponse>(`${environment.apiBaseUrl}/book/edit/${id}`, book, {
+      headers: new HttpHeaders()
+        .set('Authorization', 'Bearer ')
     });
   }
 }
