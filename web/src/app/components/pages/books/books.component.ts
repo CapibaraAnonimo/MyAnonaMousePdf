@@ -1,10 +1,13 @@
 import {Component} from '@angular/core';
-import {AuthService} from "../../services/auth.service";
+import {AuthService} from "../../../services/auth.service";
 import {Router} from "@angular/router";
-import {EventBusService} from "../../services/event-bus.service";
 import {Subscription} from "rxjs";
-import {BookService} from "../../services/book.service";
-import {BookPage, BookResponse} from "../../interfaces/book-response";
+import {BookPage, BookResponse} from "../../../interfaces/book-response";
+import {BookService} from "../../../services/book.service";
+import {EventBusService} from "../../../services/event-bus.service";
+import {MatDialog} from "@angular/material/dialog";
+import {DeleteDialogComponent} from "../../dialogs/delete-dialog/delete-dialog.component";
+import {EditDialogComponent} from "../../dialogs/edit-dialog/edit-dialog.component";
 
 @Component({
   selector: 'app-books',
@@ -17,23 +20,9 @@ export class BooksComponent {
   images: String[] = [];
   eventBusSub?: Subscription;
 
-  constructor(private authService: AuthService, private bookService: BookService, private router: Router, private eventBusService: EventBusService,) {
+  constructor(private authService: AuthService, private bookService: BookService, private router: Router, private eventBusService: EventBusService, public dialog: MatDialog) {
     this.images.length = 10;
-    this.bookService.getAllBooks(0).subscribe(response => {
-      console.log(response);
-      this.bookPage = response;
-      this.books = [];
-      this.books.push.apply(this.books, response.content);
-
-      for (let i = 0; i < this.books.length; i++) {
-        this.fetchImage(this.books[i].image, i)
-      }
-
-      this.eventBusSub = this.eventBusService.on('logout', () => {
-        this.authService.logout();
-        this.router.navigate(['/']);
-      });
-    });
+    this.getAllBooks(0);
   }
 
   ngOnInit(): void {
@@ -72,14 +61,38 @@ export class BooksComponent {
       });
   }
 
-  editBook(book: any) {
-    // Implement the logic to handle editing the book
-    console.log('Editing book:', book);
+  editBook(book: BookResponse) {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
+        width: '50%',
+        data: {
+          /*title: book.title,
+          vip: book.vip,
+          author: book.author,
+          description: book.description,
+          id: book.id,*/
+          book: book,
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
   }
 
-  deleteBook(book: any) {
-    // Implement the logic to handle deleting the book
-    console.log('Deleting book:', book);
+  deleteBook(book: BookResponse) {
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+        width: '25%',
+        data: {
+          bookName: book.title,
+          bookId: book.id,
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
   }
 
   counter() {
@@ -87,7 +100,11 @@ export class BooksComponent {
   }
 
   changePage(page: number): void {
-    this.bookService.getAllBooks(page).subscribe(response => {
+    this.getAllBooks(page);
+  }
+
+  getAllBooks(page: number) {
+    this.bookService.getAllBooks(page).subscribe((response: BookPage) => {
       console.log(response);
       this.bookPage = response;
       this.books = [];
@@ -103,6 +120,4 @@ export class BooksComponent {
       });
     });
   }
-
-  protected readonly Array = Array;
 }

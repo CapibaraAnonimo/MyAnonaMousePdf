@@ -13,6 +13,7 @@ import com.capibaraanonimo.myanonamousepdf.errors.exceptions.ListEntityNotFoundE
 import com.capibaraanonimo.myanonamousepdf.errors.exceptions.SingleEntityNotFoundException;
 import com.capibaraanonimo.myanonamousepdf.model.Book;
 import com.capibaraanonimo.myanonamousepdf.model.Comment;
+import com.capibaraanonimo.myanonamousepdf.model.Roles;
 import com.capibaraanonimo.myanonamousepdf.model.User;
 import com.capibaraanonimo.myanonamousepdf.repository.BookRepository;
 import com.capibaraanonimo.myanonamousepdf.repository.CommentRepository;
@@ -20,22 +21,13 @@ import com.capibaraanonimo.myanonamousepdf.repository.UserRepository;
 import com.capibaraanonimo.myanonamousepdf.search.spec.BookSpecificationBuilder;
 import com.capibaraanonimo.myanonamousepdf.search.util.SearchCriteria;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -103,8 +95,7 @@ public class BookService {
             book = optionalBook.get();
             book.setImage(filename.substring(0, filename.length() - 3) + "jpg");
             save(book);
-        }
-        else
+        } else
             throw new SingleEntityNotFoundException(id, Book.class);
         book.setBook(filename);
         return book;
@@ -152,8 +143,13 @@ public class BookService {
             throw new BookNameNotFoundException(name);
     }
 
-    public void deleteById(UUID id) { //FIXME devuelve un 401 si no existe la entidad que buscas
-        bookRepository.deleteById(id);
+    public boolean deleteById(UUID id, User user) { //FIXME investiga por qué devuelve un 401 si no existe la entidad que buscas, que está bien pero aun así
+        Book book = findById(id);
+        if (user.getRoles().contains(Roles.ADMIN) || user.getId().equals(book.getUploader().getId())) {
+            bookRepository.deleteById(id);
+            return true;
+        } else
+            return false;
     }
 
     public Book edit(String id, UpdateBook updateBook) {

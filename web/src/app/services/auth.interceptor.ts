@@ -62,7 +62,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
           catchError((error) => {
             this.isRefreshing = false;
 
-            if (error.status == '403' || error.status === '403') {
+            if (error.status == '403' || error.status === '401') {
+              console.log('Error: ' + error.status);
               this.eventBusService.emit(new EventData('logout', null));
             }
 
