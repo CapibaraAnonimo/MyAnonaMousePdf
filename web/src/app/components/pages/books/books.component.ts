@@ -25,10 +25,6 @@ export class BooksComponent {
     this.getAllBooks(0);
   }
 
-  ngOnInit(): void {
-
-  }
-
   // fetchImage(image: String, position: number) {
   //   this.bookService.getImage(image).subscribe(response => {
   //     console.log("Blob: " + response.type);

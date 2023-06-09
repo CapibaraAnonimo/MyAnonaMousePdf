@@ -1,21 +1,19 @@
 .container {
+  height: 100%;
+  background-color: #444;
+}
+
+.content {
   display: flex;
   flex-direction: column;
   background-color: #444;
   color: #fff;
 }
 
-mat-toolbar {
+app-main-tollbar {
   position: sticky;
   top: 0;
-  z-index: 1;
-  background-color: #222;
-}
-
-mat-sidenav {
-  width: 200px;
-  background-color: #222;
-  color: #fff;
+  z-index: 10;
 }
 
 .book-list {
@@ -51,7 +49,7 @@ mat-sidenav {
 }
 
 .pagination button {
-  margin: 0 5px;
+  margin: 0 0px;
   color: white;
 }
 
