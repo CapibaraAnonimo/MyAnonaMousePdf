@@ -28,9 +28,11 @@
             <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="download"></mat-icon>
             <span style="font-size: 20px">{{user.id}}</span>
           </div>-->
-          <mat-slide-toggle class="example-margin" [(ngModel)]="checked[i]">
+          <div *ngIf="checked">Enabled:</div>
+          <div *ngIf="!checked">Disabled:</div>
+          <mat-slide-toggle style="margin-left: 10px" class="example-margin" [(ngModel)]="checked[i]">
           </mat-slide-toggle>
-          <button mat-raised-button color="primary" style="margin-right: 10px">Change</button>
+          <button mat-raised-button color="primary" style="margin-left: 10px" (click)="changeState(i)">Change</button>
         </mat-card-actions>
       </mat-card>
     </div>

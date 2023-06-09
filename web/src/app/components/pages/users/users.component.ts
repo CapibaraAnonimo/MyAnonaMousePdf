@@ -52,4 +52,18 @@ export class UsersComponent {
         reader.readAsDataURL(blob);
       });
   }
+
+  changeState(i: number) {
+    if (this.checked[i]) {
+      this.userService.enableUser(this.users[i].id).subscribe(response => {
+
+      });
+    } else {
+      this.userService.disableUser(this.users[i].id).subscribe(response => {
+        if (response.id === this.authService.user!.id) {
+          this.router.navigate(['/']);
+        }
+      });
+    }
+  }
 }

@@ -100,6 +100,7 @@ public class UserService {
     public User disable(UUID id) {
         User user = findById(id);
         user.setEnabled(false);
+        save(user);
         return user;
     }
 

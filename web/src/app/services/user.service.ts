@@ -18,4 +18,18 @@ export class UserService {
         .set('Authorization', 'Bearer ')
     });
   }
+
+  enableUser(id: String): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${environment.apiBaseUrl}/admin/enable/${id}`, {
+      headers: new HttpHeaders()
+        .set('Authorization', 'Bearer ')
+    });
+  }
+
+  disableUser(id: String): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${environment.apiBaseUrl}/admin/disable/${id}`, {
+      headers: new HttpHeaders()
+        .set('Authorization', 'Bearer ')
+    });
+  }
 }
