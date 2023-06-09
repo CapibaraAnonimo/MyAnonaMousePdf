@@ -1,10 +1,9 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {Observable, tap} from "rxjs";
 import {environment} from "../../enviroments/enviroment";
 import {JwtUserResponse} from "../interfaces/jwt-user-response";
 import {Tokens} from "../interfaces/tokens";
-import {UserResponse} from "../interfaces/user-response";
 
 @Injectable({
   providedIn: 'root'
