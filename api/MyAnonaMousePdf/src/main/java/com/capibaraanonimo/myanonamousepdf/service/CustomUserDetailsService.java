@@ -1,5 +1,6 @@
 package com.capibaraanonimo.myanonamousepdf.service;
 
+import com.capibaraanonimo.myanonamousepdf.errors.exceptions.UserDisabledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +15,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userService.findByUsername(username);
+        UserDetails user = userService.findByUsername(username);
+        if (user.isEnabled())
+            return user;
+        else
+            throw new UserDisabledException("The user is currently disabled, let an admin know if it is an issue");
     }
 }
