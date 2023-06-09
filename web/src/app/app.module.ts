@@ -13,6 +13,9 @@ import {CorsInterceptor, HttpRequestInterceptor, TokenInterceptor} from "./servi
 import {AuthService} from "./services/auth.service";
 import { DeleteDialogComponent } from './components/dialogs/delete-dialog/delete-dialog.component';
 import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialog.component';
+import { UsersComponent } from './components/pages/users/users.component';
+import { MainTollbarComponent } from './components/toolbars/main-tollbar/main-tollbar.component';
+import {NgOptimizedImage} from "@angular/common";
 
 @NgModule({
   declarations: [
@@ -20,7 +23,9 @@ import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialo
     LoginComponent,
     BooksComponent,
     DeleteDialogComponent,
-    EditDialogComponent
+    EditDialogComponent,
+    UsersComponent,
+    MainTollbarComponent
   ],
   imports: [
     BrowserModule,
@@ -30,7 +35,8 @@ import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialo
     MaterialImportsModule,
     FormsModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgOptimizedImage
   ],
   providers: [
     AuthService,

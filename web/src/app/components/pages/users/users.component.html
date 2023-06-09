@@ -1,0 +1,38 @@
+<div class="container">
+  <app-main-tollbar></app-main-tollbar>
+
+  <div class="content">
+    <div class="user-list">
+      <mat-card class="user-card" *ngFor="let user of users; let i = index">
+        <img mat-card-image src="{{ images[i] }}" alt="{{user.userName}} avatar">
+        <hr>
+        <mat-card-title style="text-transform: capitalize">{{ user.userName }}</mat-card-title>
+        <hr>
+        <mat-card-title>Name: {{user.fullName}}</mat-card-title>
+        <span class="spacer"></span>
+        <mat-card-actions style="align-content: end">
+          <!--<mat-form-field>
+            <mat-label>Choose one</mat-label>
+            <mat-select>
+              <mat-option value="valid">Enabled</mat-option>
+              <mat-option value="invalid">Disabled</mat-option>
+            </mat-select>
+            &lt;!&ndash;<mat-hint>Errors appear instantly!</mat-hint>&ndash;&gt;
+            &lt;!&ndash;<mat-error *ngIf="selected.hasError('required')">You must make a selection</mat-error>
+            <mat-error *ngIf="selected.hasError('pattern') && !selected.hasError('required')">
+              Your selection is invalid
+            </mat-error>&ndash;&gt;
+          </mat-form-field>-->
+          {{checked[i]}}
+          <!--<div style="display: flex; margin-right: 10px; flex-direction: row">
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="download"></mat-icon>
+            <span style="font-size: 20px">{{user.id}}</span>
+          </div>-->
+          <mat-slide-toggle class="example-margin" [(ngModel)]="checked[i]">
+          </mat-slide-toggle>
+          <button mat-raised-button color="primary" style="margin-right: 10px">Change</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

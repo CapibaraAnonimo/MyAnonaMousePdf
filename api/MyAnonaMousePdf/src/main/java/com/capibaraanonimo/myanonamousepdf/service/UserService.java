@@ -50,6 +50,10 @@ public class UserService {
             throw new SingleEntityNotFoundException(userId, User.class);
     }
 
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
     public User findByUsername(String username) {
         Optional<User> optionalUser = userRepository.findFirstByUsername(username);
         if (optionalUser.isPresent())

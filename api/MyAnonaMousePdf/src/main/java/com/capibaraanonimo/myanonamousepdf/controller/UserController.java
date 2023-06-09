@@ -118,6 +118,12 @@ public class UserController {
         return UserResponse.fromUser(userService.enable(UUID.fromString(id)));
     }
 
+    @GetMapping("user")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> getAllUsers() {
+        return userService.findAll().stream().map(UserResponse::fromUser).toList();
+    }
+
     @GetMapping("/me/books")
     public List<BookResponse> getOwnBooks(@AuthenticationPrincipal User loggedUser) {
         return userService.findOwnBooks(loggedUser.getId()).stream().map(BookResponse::of).toList();
