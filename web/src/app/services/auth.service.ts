@@ -4,6 +4,7 @@ import {Observable, tap} from "rxjs";
 import {environment} from "../../enviroments/enviroment";
 import {JwtUserResponse} from "../interfaces/jwt-user-response";
 import {Tokens} from "../interfaces/tokens";
+import {Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ import {Tokens} from "../interfaces/tokens";
 export class AuthService implements OnDestroy {
   user?: JwtUserResponse = undefined;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     this.user = JSON.parse(sessionStorage.getItem('user') || 'null');
   }
 
@@ -42,6 +43,7 @@ export class AuthService implements OnDestroy {
   logout() {
     this.user = undefined;
     sessionStorage.removeItem('user');
+    this.router.navigate(['/']);
   }
 
   isAuthenticated() {
