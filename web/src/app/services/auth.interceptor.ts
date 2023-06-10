@@ -114,7 +114,7 @@ export class CorsInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const modifiedReq = req.clone({
       setHeaders: {
-        'Access-Control-Allow-Origin': 'http://localhost:8080', // Replace with your Spring backend URL
+        'Access-Control-Allow-Origin': 'http://localhost:8080',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
         'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
       }
