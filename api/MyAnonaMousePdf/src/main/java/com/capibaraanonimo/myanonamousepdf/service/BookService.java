@@ -101,17 +101,6 @@ public class BookService {
         return book;
     }
 
-    public String saveThumbnail(String file) throws IOException { //TODO ver si se puede hacer esto para el TFG
-        /*PDDocument document = PDDocument.load(new File(file));
-        PDFRenderer pdfRenderer = new PDFRenderer(document);
-
-        BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
-        // suffix in filename will be used as the file format
-        storageService.store(ImageIOUtil.writeImage(bim, file + "-" + "thumbnail" + ".jpeg", 300));
-        document.close();*/
-        return "";
-    }
-
     public void save(Book book) {
         bookRepository.save(book);
     }
@@ -143,7 +132,7 @@ public class BookService {
             throw new BookNameNotFoundException(name);
     }
 
-    public boolean deleteById(UUID id, User user) { //FIXME investiga por qué devuelve un 401 si no existe la entidad que buscas, que está bien pero aun así
+    public boolean deleteById(UUID id, User user) {
         Book book = findById(id);
         if (user.getRoles().contains(Roles.ADMIN) || user.getId().equals(book.getUploader().getId())) {
             bookRepository.deleteById(id);
