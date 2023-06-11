@@ -107,6 +107,7 @@ public class UserService {
     public User enable(UUID id) {
         User user = findById(id);
         user.setEnabled(true);
+        save(user);
         return user;
     }
 

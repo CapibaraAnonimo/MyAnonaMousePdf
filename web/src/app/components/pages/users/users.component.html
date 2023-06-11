@@ -11,23 +11,6 @@
         <mat-card-title>Name: {{user.fullName}}</mat-card-title>
         <span class="spacer"></span>
         <mat-card-actions style="align-content: end">
-          <!--<mat-form-field>
-            <mat-label>Choose one</mat-label>
-            <mat-select>
-              <mat-option value="valid">Enabled</mat-option>
-              <mat-option value="invalid">Disabled</mat-option>
-            </mat-select>
-            &lt;!&ndash;<mat-hint>Errors appear instantly!</mat-hint>&ndash;&gt;
-            &lt;!&ndash;<mat-error *ngIf="selected.hasError('required')">You must make a selection</mat-error>
-            <mat-error *ngIf="selected.hasError('pattern') && !selected.hasError('required')">
-              Your selection is invalid
-            </mat-error>&ndash;&gt;
-          </mat-form-field>-->
-          {{checked[i]}}
-          <!--<div style="display: flex; margin-right: 10px; flex-direction: row">
-            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="download"></mat-icon>
-            <span style="font-size: 20px">{{user.id}}</span>
-          </div>-->
           <div *ngIf="checked">Enabled:</div>
           <div *ngIf="!checked">Disabled:</div>
           <mat-slide-toggle style="margin-left: 10px" class="example-margin" [(ngModel)]="checked[i]">

@@ -1,10 +1,11 @@
 app-main-tollbar {
   position: sticky;
+  z-index: 10;
   top: 0;
 }
 
 .container {
-  height: 100%;
+  min-height: 100%;
   background-color: #444;
 }
 
@@ -38,7 +39,6 @@ mat-card-subtitle{
 }
 
 .user-card hr {
-  //border: none;
   border-left: 1px solid white;
   margin: 10px 10px;
 }

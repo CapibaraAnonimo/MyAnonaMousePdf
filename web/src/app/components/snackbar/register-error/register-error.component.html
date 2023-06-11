@@ -1,0 +1,7 @@
+<span class="content" matSnackBarLabel>
+  Errors:<br>
+  <li *ngFor="let m of message">{{m}}<br></li>
+</span>
+<span matSnackBarActions>
+  <button color="primary" mat-raised-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
+</span>
