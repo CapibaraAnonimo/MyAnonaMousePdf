@@ -5,6 +5,7 @@ import {environment} from "../../enviroments/enviroment";
 import {JwtUserResponse} from "../interfaces/jwt-user-response";
 import {Tokens} from "../interfaces/tokens";
 import {Router} from "@angular/router";
+import {CreateUser} from "../interfaces/create-user";
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,16 @@ export class AuthService implements OnDestroy {
       this.user = user;
       sessionStorage.setItem('user', JSON.stringify(user));
     }));
+  }
+
+  register(newUser: CreateUser): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/auth/register`, newUser,
+      {observe: 'response'});
+  }
+
+  registerAdmin(newUser: CreateUser): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/auth/register/admin`, newUser,
+      {observe: 'response'});
   }
 
   refreshToken(): Observable<Tokens> {

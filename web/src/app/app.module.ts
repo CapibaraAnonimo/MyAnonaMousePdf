@@ -16,6 +16,8 @@ import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialo
 import { UsersComponent } from './components/pages/users/users.component';
 import { MainTollbarComponent } from './components/toolbars/main-tollbar/main-tollbar.component';
 import {NgOptimizedImage} from "@angular/common";
+import { RegisterComponent } from './components/pages/register/register.component';
+import { RegisterErrorComponent } from './components/snackbar/register-error/register-error.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import {NgOptimizedImage} from "@angular/common";
     DeleteDialogComponent,
     EditDialogComponent,
     UsersComponent,
-    MainTollbarComponent
+    MainTollbarComponent,
+    RegisterComponent,
+    RegisterErrorComponent
   ],
   imports: [
     BrowserModule,
