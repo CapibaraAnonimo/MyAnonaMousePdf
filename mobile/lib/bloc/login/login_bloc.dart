@@ -37,7 +37,28 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(LoginFailure(error: 'Something very weird just happened'));
       }
     } on Exception catch (err) {
-      emit(LoginFailure(error: 'An unknown error occurred ${err.toString()}'));
+      String error = err.toString();
+      int startIndex;
+      String mensaje;
+      int endIndex;
+      if (error.contains("message\":\"")) {
+        print(error);
+        mensaje = "message\":\"";
+        startIndex = error.indexOf(mensaje);
+        endIndex = error.indexOf("\",\"path", startIndex);
+      } else {
+        print(error);
+        mensaje = "\"mensaje\":\"";
+        startIndex = error.indexOf(mensaje);
+        endIndex = error.indexOf("\",\"ruta", startIndex);
+      }
+      
+      emit(LoginFailure(error: '${error.substring(startIndex + mensaje.length, endIndex).trim()}'));
+
+
+
+
+
     }
   }
 }

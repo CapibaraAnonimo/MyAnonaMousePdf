@@ -80,7 +80,7 @@ class MyanonamousepdfApiClient {
     print(_baseUrlApi + url);
     final uri = Uri.parse(_baseUrlApi + url);
 
-    final postResponse = await _httpClient.post(uri,
+    final postResponse = await http.post(uri,
         body: jsonEncode(body),
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ class MyanonamousepdfApiClient {
     print(_baseUrlApi + url);
     final uri = Uri.parse(_baseUrlApi + url);
 
-    final postResponse = await _httpClient.get(
+    final postResponse = await http.get(
       uri,
       headers: {
         "Content-Type": "application/json",
