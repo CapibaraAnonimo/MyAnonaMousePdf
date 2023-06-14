@@ -274,7 +274,7 @@ class BookDetailsBody extends StatelessWidget {
                                                             255, 165, 165, 165),
                                                       ),
                                                     ),
-                                                    labelText: 'Title',
+                                                    labelText: 'Comment',
                                                     filled: true,
                                                     isDense: true,
                                                   ),
@@ -284,7 +284,7 @@ class BookDetailsBody extends StatelessWidget {
                                                   autocorrect: false,
                                                   validator: (value) {
                                                     if (value == null) {
-                                                      return 'Title is required';
+                                                      return 'Comment is required';
                                                     }
                                                     return null;
                                                   },
@@ -378,7 +378,7 @@ class BookDetailsBody extends StatelessWidget {
                                                             255, 165, 165, 165),
                                                       ),
                                                     ),
-                                                    labelText: 'Title',
+                                                    labelText: 'Comment',
                                                     filled: true,
                                                     isDense: true,
                                                   ),
@@ -388,7 +388,7 @@ class BookDetailsBody extends StatelessWidget {
                                                   autocorrect: false,
                                                   validator: (value) {
                                                     if (value == null) {
-                                                      return 'Title is required';
+                                                      return 'Comment is required';
                                                     }
                                                     return null;
                                                   },

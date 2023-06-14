@@ -116,7 +116,7 @@ class UserInfoState extends State<UserInfo> with TickerProviderStateMixin {
                                 fontSize: 12, color: Colors.white),
                           ),
                           Text(
-                            "Joined: ${user.createdAt.substring(0, user.createdAt.length - 10)}",
+                            "Joined: ${user.createdAt}",
                             style: const TextStyle(
                                 fontSize: 25, color: Colors.white),
                           ),
