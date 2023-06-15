@@ -28,7 +28,8 @@ class MyanonamousepdfApiClient {
 
   //static String _baseUrlApi = "http://localhost:8080/";
   //static String _baseUrlApi = "http://10.0.2.2:8080/";
-  static String _baseUrlApi = "http://192.168.0.159:8080/";
+  //static String _baseUrlApi = "http://192.168.0.159:8080/";
+  static String _baseUrlApi = "http://172.27.3.133:8080/";
 
   final http.Client _httpClientt;
 
