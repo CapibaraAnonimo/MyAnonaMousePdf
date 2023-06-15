@@ -26,7 +26,7 @@ spring.profiles.active=test
 
 ## Usuarios
 ```
-Usuario: 'admin' - Contraseña : 'admin'
+Admin: 'admin' - Contraseña : 'admin'
 Usuario: 'user' - Contraseña : 'user'
 Usuario: 'adrian.arnaiz' - Contraseña : 'qwerty'
 Usuario: 'profesor.luismi' - Contraseña : 'profesor'
